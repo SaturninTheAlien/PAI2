@@ -15,6 +15,7 @@ app.get("/hello", (req, res)=>{
 const apiRouter = express.Router();
 
 apiRouter.use("/auth", require("./routers/authRouter"));
+apiRouter.use("/categories", require("./routers/categoriesRouter"));
 apiRouter.use("/users", require("./routers/userRouter"));
 
 app.use("/api", apiRouter);

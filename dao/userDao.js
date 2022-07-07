@@ -144,14 +144,14 @@ async function mParseJson(json_in, allow_admin=true){
     }
 
     let hashed_password = await bcrypt.hash(json_in.password, 10);
-    let user = User.build({
+    let user = {
         "username":json_in.username,
         "admin":json_in.admin,
         "password": hashed_password,
         "name": json_in.name,
         "surname": json_in.surname,
         "email": json_in.email
-    });
+    };
 
     return {
         "success":true,
@@ -163,7 +163,7 @@ async function postUser(json_in, allow_admin=true){
     let user_o = await mParseJson(json_in, allow_admin);
     if(!user_o.success) return user_o;
     
-    let user = await user_o.user.save();
+    let user = await User.build(user_o.user).save();
 
     return {
         "success": true,
@@ -175,13 +175,14 @@ async function putUser(pk, json_in, allow_admin=true){
     let user_o = await mParseJson(json_in, allow_admin)
     if(!user_o.success) return user_o;
 
-    let user = user_o.user;
-    user.id = pk
-    user = await user.upsert();
+    user_o.user.id = pk
+
+    const [user, created] = await User.upsert(user_o.user);
 
     return {
         "success": true,
-        "user": mHidePassword(user)
+        "user": mHidePassword(user),
+        "created": created
     }
 }
 

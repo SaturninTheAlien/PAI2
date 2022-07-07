@@ -3,7 +3,7 @@
 let JWT_SECRET = process.env.JWT_SECRET
 
 if(JWT_SECRET==null){
-    console.warn("JWT_SECRET env variable not set!");
+    console.warn('\x1b[33m%s\x1b[0m', "JWT_SECRET env variable not set, using default value, completely insecure!");
     JWT_SECRET = "Debug_secret"
 }
 

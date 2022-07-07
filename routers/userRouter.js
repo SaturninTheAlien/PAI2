@@ -13,8 +13,9 @@ router.use(express.json());
 
 router.get('/', (req, res) => {
     userDao.allUsers()
-        .then(users => res.json(users))
-        .catch(err => onServerError(res, err))
+        .then(users =>{
+            res.status(200).json(users)
+        }).catch(err => onServerError(res, err))
 })
 
 router.get('/:id(\\d+)', (req, res) => {

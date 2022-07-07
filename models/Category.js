@@ -22,6 +22,7 @@ Category.init({
     },
     attributes: {
         type:DataTypes.JSON,
+        allowNull: false
     }
 }, {
     sequelize: db
