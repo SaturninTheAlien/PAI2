@@ -28,6 +28,48 @@ router.get('/:id(\\d+)', (req, res) => {
     }).catch(err => onServerError(res, err));
 });
 
+router.get('/:id(\\d+)/collect_children', verifyAuthAdmin, (req, res)=>{
+    const pk = req.params.id;
+    categoryDao.getCategoryWithAllChildren(pk).then(op=>{
+        if(op.success){
+            res.status(200).json(op.categories);
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+
+    }).catch(err => onServerError(res, err));
+});
+
+router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
+
+    const pk = req.params.id;
+    categoryDao.getCategoryWithAllParents(pk).then(op=>{
+        if(op.success){
+            res.status(200).json(op.categories);
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+
+    }).catch(err => onServerError(res, err));
+});
+
+
+router.get("/:id(\\d+)/attributes", (req, res)=>{
+    const pk = req.params.id;
+    categoryDao.collectAllCategoryAttributes(pk).then(op=>{
+        if(op.success){
+            res.status(200).json(op.attributes);
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+
+    }).catch(err => onServerError(res, err));
+});
+
+
 router.post("/",verifyAuthAdmin, (req, res) => {
     categoryDao.postCategory(req.body).then(op=>{
         if(op.success){

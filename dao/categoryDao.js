@@ -100,6 +100,11 @@ async function deleteCategory(pk){
     let category_o = await getCategory(pk);
     if(!category_o.success) return category_o;
 
+    await Category.update(
+        {parent_id: null},
+        {where: {parent_id : pk}}
+    );
+
     await category_o.category.destroy();
 
     return {
@@ -107,10 +112,89 @@ async function deleteCategory(pk){
     }
 }
 
+async function getCategoryWithAllChildren(pk){
+    let root_o = await getCategory(pk);
+    if(!root_o.success) return root_o;
+
+    async function rec1(level, category, arr){
+
+        //prevent infinite loop
+        if(arr.find(a => a.category.id == category.id) == null){
+
+            arr = [...arr, {
+                "category": category,
+                "level" : level
+            }];
+
+            let children = await Category.findAll({
+                where:{
+                    "parent_id": category.id
+                }
+            });
+
+            for(let childCategory of children){
+                arr = await rec1(level+1, childCategory, arr);
+            }
+        }
+
+        return arr;
+    }
+
+
+    return {
+        "success":true,
+        "categories": await rec1(0, root_o.category, []),
+    };
+}
+
+async function getCategoryWithAllParents(pk){
+    let root_o = await getCategory(pk);
+    if(!root_o.success) return root_o;
+
+    async function rec1(level, category, arr){
+        //prevent infinite loop
+        if(arr.find(a => a.category.id == category.id) == null){
+            arr = [...arr, {
+                "category": category,
+                "level" : level
+            }];
+
+            if(category.parent_id!=null){
+                let op = await getCategory(category.parent_id);
+                if(op.success){
+                    arr = await rec1(level-1, op.category, arr);
+                }
+            }
+        }
+        return arr;
+    }
+
+    return {
+        "success":true,
+        "categories": await rec1(0, root_o.category, []),
+    }
+}
+
+
+async function collectAllCategoryAttributes(pk){
+    let op = await getCategoryWithAllParents(pk);
+    if(!op.success) return op;
+
+    return {
+        "success": true,
+        "attributes": op.categories.map(a => {return a.category.attributes}).flat()
+    }
+}
+
+
 module.exports = {
     allCategories,
     getCategory,
     postCategory,
     putCategory,
-    deleteCategory
+    deleteCategory,
+
+    getCategoryWithAllChildren,
+    getCategoryWithAllParents,
+    collectAllCategoryAttributes,
 }
