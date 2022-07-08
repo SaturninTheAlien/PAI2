@@ -1,37 +1,11 @@
 #!/usr/bin/python3
 
-import requests
+from common import get, put
 
-BASE_URL = "http://localhost:3002"
+def put_category(category, id:int):
+    return put("/api/categories/{}".format(id), json=category)
 
-session = requests.Session()
-session.auth = ('czesiek', "czesiek123")
-
-
-def put_category(cat, id:int):
-    full_url = BASE_URL + "/api/categories/{}".format(id)
-    print("POST "+ full_url)
-
-    r = session.put(full_url, json=cat)
-    if r.status_code // 100 != 2:
-        print("status_code:{}".format(r.status_code))
-        exit(1)
-
-    print(r.json())
-
-
-def get_test(url):
-    full_url = BASE_URL + url
-    print("GET "+full_url)
-
-    r = session.get(full_url)
-    if r.status_code // 100 != 2:
-        print("status_code:{}".format(r.status_code))
-        exit(1)
-
-    print(r.json())
-
-cat1 = {
+category1 = {
     "name": "Live Birds",
     "attributes": [
         {
@@ -41,9 +15,9 @@ cat1 = {
     ]
 }
 
-put_category(cat1, 1)
 
-cat2 = {
+
+category2 = {
     "name": "Chickens",
     "attributes": [
         {
@@ -54,9 +28,9 @@ cat2 = {
     "parent_id": 1
 }
 
-put_category(cat2, 2)
 
-cat3 = {
+
+category3 = {
     "name": "Hens",
     "attributes": [
         {
@@ -67,21 +41,41 @@ cat3 = {
     "parent_id": 2
 }
 
-put_category(cat3, 3)
 
-cat4 = {
+category4 = {
     "name": "Roosters",
     "attributes": [],
     "parent_id": 2
 }
 
-put_category(cat4, 4)
+if __name__ == "__main__":
 
-print()
-get_test("/api/categories/1/collect_children")
+    put_category(category1, 1)
+    put_category(category2, 2)
+    put_category(category3, 3)
+    put_category(category4, 4)
 
-print()
-get_test("/api/categories/3/collect_children")
+    print("|--------------------------|")
+    get("/api/categories/1/collect_children")
 
-print()
-get_test("/api/categories/3/attributes")
+    print("|--------------------------|")
+    get("/api/categories/3/collect_children")
+
+    print("|--------------------------|")
+    get("/api/categories/3/attributes")
+
+    #This involves a potential client bug, but it shouldn't crash the system.
+    category1["parent_id"] = 4
+    put_category(category1, 1)
+
+    print("|--------------------------|")
+    get("/api/categories/1/collect_children")
+
+    print("|--------------------------|")
+    get("/api/categories/3/collect_children")
+
+    print("|--------------------------|")
+    get("/api/categories/3/attributes")
+
+    category1["parent_id"] = None
+    put_category(category1, 1)

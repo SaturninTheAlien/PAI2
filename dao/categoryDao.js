@@ -23,23 +23,56 @@ async function getCategory(pk){
     }
 }
 
+function validateProductAttribute(a, v){
+    
+    if(v==null){
+        return false;
+    }
+
+    function exceedsMinMaxValues(){
+        return (a.max!=null && v > max) || (a.min!=null && v < min);
+    }
+   
+    switch(a.type){
+
+    case "str":
+    case "string":
+        return typeof v == 'string'
+
+    case "date":
+    case "int":
+        return Number.isInteger(v) && !exceedsMinMaxValues();
+
+    case "unint":
+        if(!Number.isInteger(v))return false;
+        return v>=0 && !exceedsMinMaxValues();
+
+    case "double":
+    case "number":
+        return !Number.isNaN(v) && !exceedsMinMaxValues()
+
+    case "enum":
+        return a.values.includes(v);
+    }
+
+    return false;
+}
+
 function mParseJson(json_in){
-    const required_fields = ["name", "attributes"]
-    for(let f of required_fields){
-        if(!json_in.hasOwnProperty(f)){
-            return {
-                "success":false,
-                "status_code":400,
-                "message": `Field "${f}" required.`
-            }
+
+    if(typeof json_in.name != "string"){
+        return {
+            "success":false,
+            "status_code":400,
+            "message": `String field "name" required.`
         }
     }
-    
+
     if(!Array.isArray(json_in.attributes)){
         return {
             "success":false,
             "status_code":400,
-            "message": `Field "attributes" must be an array.`
+            "message": `Array field "attributes" required.`
         }
     }
 
@@ -47,17 +80,58 @@ function mParseJson(json_in){
         json_in.parent_id = null;
     }
 
-    const required_fields_for_attribute = ["name", "type"]
     for(let a of json_in.attributes){
-        for(let f of required_fields_for_attribute){
-            if(!a.hasOwnProperty(f)){
+        if(typeof a.name != "string"){
+            return {
+                "success":false,
+                "status_code":400,
+                "message": `Incorrect attribute, string field "name" required.`
+            }
+        }
+
+        if(typeof a.type != "string"){
+            return {
+                "success":false,
+                "status_code":400,
+                "message": `Incorrect attribute: ${a.name}, field "type" required.`
+            }
+        }
+
+        if(a.type=="enum"){
+            if(!Array.isArray(a.values)){
                 return {
                     "success":false,
                     "status_code":400,
-                    "message": `Anorrect attribute, field "${f}" required.`
+                    "message": `Incorrect attribute: ${a.name}, field "values" required for enum type.`
                 }
             }
         }
+
+        else if(a.hasOwnProperty("default") && !validateProductAttribute(a, a.default)){
+            return {
+                "success": false,
+                "status_code": 400,
+                "message": `Incorrect attribute: ${a.name}, incorrect default value: "${a.default}".`
+            }
+        }
+
+        else if(a.hasOwnProperty("max") && !validateProductAttribute(a, a.max)){
+            return {
+                "success": false,
+                "status_code": 400,
+                "message": `Incorrect attribute: ${a.name}, incorrect max value: "${a.max}".`
+            }
+        }
+
+        else if(a.hasOwnProperty("min") && !validateProductAttribute(a, a.min)){
+            return {
+                "success": false,
+                "status_code": 400,
+                "message": `Incorrect attribute: ${a.name}, incorrect min value: "${a.min}".`
+            }
+        }
+
+        
     }
     return {
         "success": true,
@@ -197,4 +271,5 @@ module.exports = {
     getCategoryWithAllChildren,
     getCategoryWithAllParents,
     collectAllCategoryAttributes,
+    validateProductAttribute
 }

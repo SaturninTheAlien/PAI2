@@ -10,7 +10,7 @@ const{verifyAuthAdmin} = require("../services/authService");
 router.use(express.json());
 
 router.get("/", (req, res) => {
-    productDao.allProducts.then(products=>{
+    productDao.allProducts().then(products=>{
         res.status(200).json(products);
 
     }).catch(err => onServerError(res, err));

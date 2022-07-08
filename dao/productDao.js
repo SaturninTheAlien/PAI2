@@ -25,44 +25,59 @@ async function getProduct(pk){
 }
 
 async function mParseProductJson(json_in){
-    let product = new Object();
-    
-    const required_fields = ["name", "attributes", "category_id", "price"];
-    for(let f of required_fields){
-        if(!json_in.hasOwnProperty(f)){
-            return {
-                "success":false,
-                "status_code":400,
-                "message": `Field "${f}" required.`
-            }
-        }
-        product[f] = json_in[f];
-    }
-
-    product.category_id = Number.parseInt(product.category_id);
-    if(Number.isNaN(product.category_id)){
+    if(typeof json_in.name != "string"){
         return {
             "success":false,
             "status_code":400,
-            "message": `Field "category_id" must be an integer.`
+            "message": `String field "name" required.`
+        }
+    }
+    if(!Number.isInteger(json_in.category_id)){
+        return {
+            "success":false,
+            "status_code":400,
+            "message": `Integer field "category_id" required.`
         }
     }
 
-    const category_o =  await categoryDao.getCategory(product.category_id);
-    if(!category_o.success) return category_o;
-
-    /*const category = category_o.category;
-    for(let a of category.attributes){
-        if(!product.attributes.hasOwnProperty())
-    }*/   
-
-    const optional_fields=["description", "picture_url"];
-    for(let f of optional_fields){
-        if(json_in.hasOwnProperty(f)){
-            product[f] = json_in[f];
+    if(!Number.isInteger(json_in.price)){
+        return {
+            "success":false,
+            "status_code":400,
+            "message": `Integer field "price" required.`
         }
-        else{
-            product[f] = null;
+    }
+
+    let product = {
+        "name": json_in.name,
+        "attributes": json_in.attributes || new Object(),
+        "category_id": json_in.category_id,
+        "price" : json_in.price,
+        "description" : json_in.description || null,
+        "picture_url": json_in.picture_url || null,
+    }
+    
+    
+    const attributes_o = await categoryDao.collectAllCategoryAttributes(product.category_id);
+    if(!attributes_o.success) return attributes_o;
+    
+    const attributes = attributes_o.attributes;
+    for(let a of attributes){
+        if(product.attributes[a.name]!=null){
+            if(!categoryDao.validateProductAttribute(a, product.attributes[a.name])){
+                return {
+                    "success": false,
+                    "status_code": 400,
+                    "message": `Not allowed value ${product.attributes[a.name]} of the attribute "${a.name}"`
+                }
+            }
+        }
+        else if(!a.allow_null){
+            return {
+                "success":false,
+                "status_code": 400,
+                "message": `Missing attribute: ${a.name}`
+            }
         }
     }
 
@@ -89,7 +104,7 @@ async function putProduct(pk, json_in){
     if(!op.success) return op;
     op.product.id = pk
 
-    const [product, created] = await Product.upsert(o.product);
+    const [product, created] = await Product.upsert(op.product);
 
     return {
         "success": true,

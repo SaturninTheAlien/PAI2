@@ -110,7 +110,7 @@ async function mParseJson(json_in, allow_admin=true){
 
     const required_fields = ["username","password", "name", "surname", "email"]
     for(let f of required_fields){
-        if(!json_in.hasOwnProperty(f)){
+        if(typeof json_in[f] != "string"){
             return {
                 "success":false,
                 "status_code":400,

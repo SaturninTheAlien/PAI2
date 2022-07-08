@@ -1,4 +1,8 @@
 node_modules/*
 package-lock.json
 
+bullshit
+
 config/.env
+
+__pycache__
