@@ -13,6 +13,8 @@ app.get("/hello", (req, res)=>{
 });
 
 const apiRouter = express.Router();
+const cors = require("cors");
+apiRouter.use(cors());
 
 apiRouter.use("/auth", require("./routers/authRouter"));
 apiRouter.use("/categories", require("./routers/categoriesRouter"));

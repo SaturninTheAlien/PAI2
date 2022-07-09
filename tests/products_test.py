@@ -12,6 +12,13 @@ computers_category = {
             ],
         },
         {
+            "name": "operating_system",
+            "type": "enum",
+            "values": [
+                "Linux", "MacOS", "Windows10", "Windows11"
+            ],
+        },
+        {
             "name": "weight",
             "type": "double",
             "suffix": " kg"
@@ -33,6 +40,7 @@ computer1 = {
         "weight": 1.29,
         "disk_volume": 256,
         "manufacturer": "Apple",
+        "operating_system": "MacOS"
     }
 }
 
