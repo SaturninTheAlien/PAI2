@@ -56,7 +56,7 @@ def put(url, json):
 
     return rj
 
-if __name__ == "__main__":
+def main():
     get("/api/auth/my_account")
 
     tmp = post("/api/auth/login", {
@@ -70,5 +70,8 @@ if __name__ == "__main__":
 
     print(r.status_code)
     print(r.json())
-        
+
+
+if __name__ == "__main__":
+    main()
     pass

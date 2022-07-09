@@ -5,8 +5,8 @@ from common import get, put
 def put_category(category, id:int):
     return put("/api/categories/{}".format(id), json=category)
 
-category1 = {
-    "name": "Live Birds",
+live_birds_category = {
+    "name": "Żywe ptaki",
     "attributes": [
         {
             "name": "hatch_date",
@@ -17,8 +17,8 @@ category1 = {
 
 
 
-category2 = {
-    "name": "Chickens",
+chickens_category = {
+    "name": "Żywe kurczaki",
     "attributes": [
         {
             "name": "breed",
@@ -30,8 +30,8 @@ category2 = {
 
 
 
-category3 = {
-    "name": "Hens",
+hens_category = {
+    "name": "Kury",
     "attributes": [
         {
             "name": "eggs_per_week",
@@ -42,18 +42,17 @@ category3 = {
 }
 
 
-category4 = {
-    "name": "Roosters",
+roosters_category = {
+    "name": "Koguty",
     "attributes": [],
     "parent_id": 2
 }
 
-if __name__ == "__main__":
-
-    put_category(category1, 1)
-    put_category(category2, 2)
-    put_category(category3, 3)
-    put_category(category4, 4)
+def main():
+    put_category(live_birds_category, 1)
+    put_category(chickens_category, 2)
+    put_category(hens_category, 3)
+    put_category(roosters_category, 4)
 
     print("|--------------------------|")
     get("/api/categories/1/collect_children")
@@ -65,8 +64,8 @@ if __name__ == "__main__":
     get("/api/categories/3/attributes")
 
     #This involves a potential client bug, but it shouldn't crash the system.
-    category1["parent_id"] = 4
-    put_category(category1, 1)
+    live_birds_category["parent_id"] = 4
+    put_category(live_birds_category, 1)
 
     print("|--------------------------|")
     get("/api/categories/1/collect_children")
@@ -77,5 +76,9 @@ if __name__ == "__main__":
     print("|--------------------------|")
     get("/api/categories/3/attributes")
 
-    category1["parent_id"] = None
-    put_category(category1, 1)
+    live_birds_category["parent_id"] = None
+    put_category(live_birds_category, 1)
+
+
+if __name__ == "__main__":
+    main()

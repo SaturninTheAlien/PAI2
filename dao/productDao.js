@@ -7,6 +7,34 @@ async function allProducts(){
     return await Product.findAll();
 }
 
+
+async function allProductsByCategory(category_id, exlude_children=false){
+    let products;
+    if(exlude_children){
+        products = await Product.findAll({
+            where:{
+                "category_id": category_id
+            }
+        });
+    }
+    else{
+        let op = await categoryDao.getCategoryWithAllChildren(category_id);
+        if(!op.success)return op;
+        let categoryIDs = op.categories.map(a=>a.category.id);
+        
+        products = await Product.findAll({
+            where:{
+                "category_id": categoryIDs
+            }
+        });
+    }
+
+    return {
+        "success": true,
+        "products": products
+    }
+}
+
 async function getProduct(pk){
     let op =  await Product.findByPk(pk);
     if(op==null){
@@ -128,6 +156,7 @@ async function deleteProduct(pk){
 
 module.exports = {
     allProducts,
+    allProductsByCategory,
     getProduct,
     postProduct,
     putProduct,

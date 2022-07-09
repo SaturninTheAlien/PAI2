@@ -10,10 +10,25 @@ const{verifyAuthAdmin} = require("../services/authService");
 router.use(express.json());
 
 router.get("/", (req, res) => {
-    productDao.allProducts().then(products=>{
-        res.status(200).json(products);
+    if(req.query.category_id!=null){
+        const exlude_subcategories = req.query.exlude_subcategories=="true";
 
-    }).catch(err => onServerError(res, err));
+        productDao.allProductsByCategory(req.query.category_id, exlude_subcategories).then(op=>{
+            if(op.success){
+                res.status(200).json(op.products);
+            }
+            else{
+                onClientError(res, op.status_code, op.message);
+            }
+        }).catch(err => onServerError(res, err));
+    }
+
+    else{
+        productDao.allProducts().then(products=>{
+            res.status(200).json(products);
+    
+        }).catch(err => onServerError(res, err));
+    }
 });
 
 router.get('/:id(\\d+)', (req, res) => {

@@ -44,10 +44,11 @@ computer1 = {
     }
 }
 
-if __name__ == "__main__":
-    #computers_category = post("/api/categories", computers_category)
-    computers_category = put("/api/categories/12", computers_category)
+def main():
+    
+    put("/api/categories/12", computers_category)
+    put("/api/products/1", computer1)
 
-    #computer1 = post("/api/products", computer1)
-    computer1 = put("/api/products/1", computer1)
+if __name__ == "__main__":
+    main()
     
