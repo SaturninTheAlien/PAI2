@@ -22,7 +22,10 @@ apiRouter.use("/products", require("./routers/productsRouter"));
 apiRouter.use("/users", require("./routers/userRouter"));
 
 app.use("/api", apiRouter);
+app.use("/auth", require("./routers/oauthRouter"));
 
-app.listen(3002, () => {
-    console.log('PAI2 app listening on port 3002!');
+app.use(express.static(__dirname + '/public'));
+
+app.listen(8080, () => {
+    console.log('PAI2 app listening on port 8080!');
 });

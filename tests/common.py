@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import requests
-BASE_URL = "http://localhost:3002"
+BASE_URL = "http://localhost:8080"
 
 session = requests.Session()
 session.auth = ('czesiek', "czesiek123")

@@ -8,28 +8,38 @@ User.init({
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
-        primaryKey: true
+        primaryKey: true,
+    },
+    nickname:{
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    picture: {
+        type: DataTypes.STRING
     },
     username: {
         type: DataTypes.STRING,
-        allowNull: false,
-        //unique: true
+        unique: true
+    },
+    password: {
+        type: DataTypes.STRING
     },
     admin: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false        
     },
-    password: {
+    given_name: {
         type: DataTypes.STRING
     },
-    name: {
-        type: DataTypes.STRING
-    },
-    surname: {
+    family_name: {
         type: DataTypes.STRING
     },
     email: {
+        type: DataTypes.STRING,
+        unique: true
+    },
+    google_id:{
         type: DataTypes.STRING,
         unique: true
     }

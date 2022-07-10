@@ -8,10 +8,13 @@ function mHidePassword(user_in){
     let user = {
         "id":  user_in.id,
         "username": user_in.username,
-        "admin": user_in.admin,
         "email": user_in.email,
-        "name": user_in.name,
-        "surname": user_in.surname,
+        "admin": user_in.admin,
+        
+        "nickname": user_in.nickname,
+        "picture": user_in.picture,
+        "given_name": user_in.given_name,
+        "family_name": user_in.family_name,
     }
 
     return user;
@@ -82,12 +85,74 @@ async function authenticateAndGetUser(username, password){
             "username":username,
         }
     });
-    if(user==null)return null;
+    if(user==null || user.password==null)return null;
 
     let success = await bcrypt.compare(password, user.password);
     return success ? mHidePassword(user) : null;
 }
 
+async function loginWithGoogleAndGetUser(googleUserInfo){
+    let user = await User.findOne({
+        where:{
+            "google_id": googleUserInfo.id
+        }
+    });
+
+    if(user!=null){
+        if(user.picture!=googleUserInfo.picture){
+            user.picture = googleUserInfo.picture;
+            user = await user.save();
+        }
+
+        return {
+            "success":true,
+            "user": mHidePassword(user)
+        };
+    }
+    if(!googleUserInfo.verified_email){
+        return {
+            "success":false,
+            "status_code": 401,
+            "message": `Unable to sign in with Google because of unverified email.`
+        }
+    }
+    
+    user = await User.findOne({
+        where:{
+            "email": googleUserInfo.email
+        }
+    });
+
+    if(user!=null){
+        user.google_id = googleUserInfo.id;
+
+        if(user.given_name==null){
+            user.given_name = googleUserInfo.given_name;
+        }
+        if(user.family_name==null){
+            user.family_name = googleUserInfo.family_name;
+        }
+        if(user.picture==null){
+            user.picture = googleUserInfo.picture;
+        }
+    }
+    else{
+        user = User.build({
+            "nickname": googleUserInfo.name,
+            "email": googleUserInfo.email,
+            "picture": googleUserInfo.picture,
+            "given_name": googleUserInfo.given_name,
+            "family_name": googleUserInfo.family_name,        
+            "google_id": googleUserInfo.id
+        });
+    }
+
+    user = await user.save();
+    return {
+        "success":true,
+        "user": mHidePassword(user)
+    };
+}
 
 function isEmailValid(email) {
     const validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
@@ -108,7 +173,7 @@ async function mParseJson(json_in, allow_admin=true){
         }
     }
 
-    const required_fields = ["username","password", "name", "surname", "email"]
+    const required_fields = ["username","password", "given_name", "family_name", "email"]
     for(let f of required_fields){
         if(typeof json_in[f] != "string"){
             return {
@@ -117,6 +182,10 @@ async function mParseJson(json_in, allow_admin=true){
                 "message": `Required a string field ${f}`
             }
         }
+    }
+
+    if(typeof json_in.nickname != "string"){
+        json_in.nickname = json_in.username;
     }
 
     if(!allow_admin&&json_in.admin){
@@ -145,11 +214,15 @@ async function mParseJson(json_in, allow_admin=true){
 
     let hashed_password = await bcrypt.hash(json_in.password, 10);
     let user = {
+        "nickname": json_in.nickname,
+
         "username":json_in.username,
-        "admin":json_in.admin,
         "password": hashed_password,
-        "name": json_in.name,
-        "surname": json_in.surname,
+        "admin":json_in.admin,
+        "picture": json_in.picture,
+        
+        "given_name": json_in.given_name,
+        "family_name": json_in.family_name,
         "email": json_in.email
     };
 
@@ -209,6 +282,7 @@ module.exports = {
     putUser,
     deleteUser,
     authenticateAndGetUser,
+    loginWithGoogleAndGetUser,
     isUsernameTaken,
     isEmailValid
 }

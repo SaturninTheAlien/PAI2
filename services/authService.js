@@ -21,7 +21,7 @@ async function verifyBasicAuth(req, b64auth){
     if(user==null) return false;
 
     req.user_id = user.id;
-    req.user_login = user.username;
+    req.user_nickname = user.nickname;
     req.user_admin = user.admin;
     
     return true;
@@ -52,7 +52,7 @@ function mVerifyAuth(req, res, next, admin_perm_required=false) {
                 onClientError(res, 401, "Incorrect or expired token.");
 
             } else {
-                req.user_login = data.username;
+                req.user_nickname = data.nickname;
                 req.user_id = data.id;
                 req.user_admin = data.admin;
                 n1();
@@ -84,8 +84,8 @@ function verifyAuthAdmin(req, res, next){
 }
 
 function generateToken(user) {
-    const {username, id, admin} = user
-    return jwt.sign({username, id, admin}, JWT_SECRET)
+    const {nickname, id, admin} = user
+    return jwt.sign({nickname, id, admin}, JWT_SECRET)
 }
 
 async function login(json_data){

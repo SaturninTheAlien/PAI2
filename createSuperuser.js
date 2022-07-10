@@ -79,12 +79,12 @@ async function readEmail(){
 async function createSuperuser(){
     let username = await readUsername();
     let password = await readPassword();
-    let name = await ask("First name:");
-    let surname = await ask("Surname:");
+    let given_name = await ask("Given name:");
+    let family_name = await ask("Family name:");
     let email = await readEmail();
     let admin = true;
 
-    let result = await userDao.postUser({username, password, name, surname, email, admin}, true);
+    let result = await userDao.postUser({username, password, given_name, family_name, email, admin}, true);
     if(!result.success){
         throw result.message;
     }
