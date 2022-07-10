@@ -35,6 +35,12 @@ def main():
     #Tylko kaczka dziwaczka
     get("/api/products?category_id=1&exlude_subcategories=true")
 
+    #Filtrowanie po atrybutach
+    get("/api/products?category_id=1&hatch_date=1591804807")
+
+    #Filtrowanie po atrybutach, wartość maksymalna, minimalna, tylko dla typów numerycznych
+    get("/api/products?category_id=1&hatch_date_min=1591804807&hatch_date_max=1657389606")
+
 
 if __name__ == "__main__":
     main()

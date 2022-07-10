@@ -35,7 +35,6 @@ function validateProductAttribute(a, v){
    
     switch(a.type){
 
-    case "str":
     case "string":
         return typeof v == 'string'
 
@@ -47,8 +46,7 @@ function validateProductAttribute(a, v){
         if(!Number.isInteger(v))return false;
         return v>=0 && !exceedsMinMaxValues();
 
-    case "double":
-    case "number":
+    case "float":
         return !Number.isNaN(v) && !exceedsMinMaxValues()
 
     case "enum":

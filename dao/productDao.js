@@ -8,14 +8,37 @@ async function allProducts(){
 }
 
 
-async function allProductsByCategory(category_id, exlude_children=false){
+function validateProductAttributeQuery(a, v){
+    if(a.type=="int" || a.type=="date" || a.type == "uint"){
+        v = Number.parseInt(v);
+    }
+    else if(a.type=="float"){
+        v = Number.parseFloat(v)
+    }
+
+    return categoryDao.validateProductAttribute(a, v);
+}
+
+function validateProductAttributeQueryMinMax(a, v){
+    if(a.type=="string" || a.type == "enum") return false;
+    return validateProductAttributeQuery(a,v);
+}
+
+
+
+async function allProductsByCategory(category_id, exlude_children, query){
     let products;
+    let attributes;
     if(exlude_children){
         products = await Product.findAll({
             where:{
                 "category_id": category_id
             }
         });
+        let category_o = await categoryDao.getCategory(category_id);
+        if(!category_o.success)return category_o;
+        attributes = category_o.category.attributes;
+
     }
     else{
         let op = await categoryDao.getCategoryWithAllChildren(category_id);
@@ -27,6 +50,56 @@ async function allProductsByCategory(category_id, exlude_children=false){
                 "category_id": categoryIDs
             }
         });
+
+        let attributes_o = await categoryDao.collectAllCategoryAttributes(category_id);
+        if(!attributes_o.success) return attributes_o;
+
+        attributes = attributes_o.attributes;
+    }
+
+    for(let a of attributes){
+        let attr_value = query[a.name];
+
+        if(attr_value!=null){
+            if(!validateProductAttributeQuery(a, attr_value)){
+                return {
+                    "success": false,
+                    "status_code": 400,
+                    "message": `Incorrect value: ${attr_value} of: ${a.name}.`
+                }
+            }
+            products = products.filter(product=>{
+                return product.attributes[a.name] == attr_value
+            });
+        }
+
+        attr_value = query[a.name+"_min"];
+        if(attr_value!=null){
+            if(!validateProductAttributeQueryMinMax(a, attr_value)){
+                return {
+                    "success": false,
+                    "status_code": 400,
+                    "message": `Incorrect value: ${attr_value} of: ${a.name}_min.`
+                }
+            }
+            products = products.filter(product=>{
+                return product.attributes[a.name] >= attr_value
+            });
+        }
+
+        attr_value = query[a.name+"_max"];
+        if(attr_value!=null){
+            if(!validateProductAttributeQueryMinMax(a, attr_value)){
+                return {
+                    "success": false,
+                    "status_code": 400,
+                    "message": `Incorrect value: ${attr_value} of: ${a.name}_max.`
+                }
+            }
+            products = products.filter(product=>{
+                return product.attributes[a.name] <= attr_value
+            });
+        }
     }
 
     return {

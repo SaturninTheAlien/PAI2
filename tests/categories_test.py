@@ -22,7 +22,7 @@ chickens_category = {
     "attributes": [
         {
             "name": "breed",
-            "type": "str"
+            "type": "string"
         }
     ],
     "parent_id": 1
