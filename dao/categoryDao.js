@@ -6,6 +6,13 @@ async function allCategories(){
     return await Category.findAll();
 }
 
+async function getCategoriesOnMainPage(){
+    return await Category.findAll({where:{
+        "on_main_page":true
+    }});
+}
+
+
 async function getCategory(pk){
     let res =  await Category.findByPk(pk);
     if(res==null){
@@ -78,6 +85,7 @@ function mParseJson(json_in){
         json_in.parent_id = null;
     }
 
+
     for(let a of json_in.attributes){
         if(typeof a.name != "string"){
             return {
@@ -136,7 +144,8 @@ function mParseJson(json_in){
         "category": {
             "name": json_in.name,
             "parent_id": json_in.parent_id,
-            "attributes": json_in.attributes
+            "attributes": json_in.attributes,
+            "on_main_page": json_in.on_main_page || false
         }
     }
 }
@@ -223,18 +232,19 @@ async function getCategoryWithAllParents(pk){
     let root_o = await getCategory(pk);
     if(!root_o.success) return root_o;
 
-    async function rec1(level, category, arr){
+    async function rec2(level, category, arr, child_id=null){
         //prevent infinite loop
         if(arr.find(a => a.category.id == category.id) == null){
             arr = [...arr, {
                 "category": category,
+                "child_id": child_id,
                 "level" : level
             }];
 
             if(category.parent_id!=null){
                 let op = await getCategory(category.parent_id);
                 if(op.success){
-                    arr = await rec1(level-1, op.category, arr);
+                    arr = await rec2(level-1, op.category, arr, category.id);
                 }
             }
         }
@@ -243,7 +253,7 @@ async function getCategoryWithAllParents(pk){
 
     return {
         "success":true,
-        "categories": await rec1(0, root_o.category, []),
+        "categories": await rec2(0, root_o.category, []),
     }
 }
 
@@ -258,6 +268,57 @@ async function collectAllCategoryAttributes(pk){
     }
 }
 
+async function collectCategoryData(pk){
+    function f1(category){
+        return {
+            "id": category.id,
+            "name": category.name
+        }
+    }
+
+    let category_tree = await getCategoriesOnMainPage();
+    category_tree = category_tree.map(f1);
+    let parents_op = await getCategoryWithAllParents(pk);
+    if(!parents_op.success)return parents_op;
+
+    
+
+    let parents = parents_op.categories;
+    for(let p of parents){
+
+        let x = category_tree.find(a=>a.id==p.category.id);
+        if(x!=null){
+            
+            while(true){
+                let children = await Category.findAll({
+                    where:{
+                        "parent_id": x.id
+                    }
+                });
+                x.children = children.map(f1);
+                
+                if(x.id==pk)break;
+
+                p = parents.find(a=>a.category.parent_id == x.id);
+                x = x.children.find(a=>a.id == p.category.id);
+                
+            }                
+            break;
+        }
+    }
+
+    let category = parents[0].category;
+    return {
+        "success": true,
+        "res": {
+            "id": category.id,
+            "name": category.name,
+            "on_main_page": category.on_main_page,
+            "tree": category_tree,
+            "attributes": parents.map(a => {return a.category.attributes}).flat()
+        }
+    }
+}
 
 module.exports = {
     allCategories,
@@ -266,8 +327,11 @@ module.exports = {
     putCategory,
     deleteCategory,
 
+
+    getCategoriesOnMainPage,
     getCategoryWithAllChildren,
     getCategoryWithAllParents,
     collectAllCategoryAttributes,
-    validateProductAttribute
+    validateProductAttribute,
+    collectCategoryData
 }

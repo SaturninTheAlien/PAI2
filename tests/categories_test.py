@@ -12,7 +12,8 @@ live_birds_category = {
             "name": "hatch_date",
             "type": "int"
         }
-    ]
+    ],
+    "on_main_page": True
 }
 
 

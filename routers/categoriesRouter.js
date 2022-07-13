@@ -15,11 +15,31 @@ router.get("/", (req, res) => {
     }).catch(err => onServerError(res, err));
 });
 
+router.get("/main_page", (req, res) => {
+    categoryDao.getCategoriesOnMainPage().then(categories=>{
+        res.status(200).json(categories);
+    }).catch(err => onServerError(res, err));
+});
+
 router.get('/:id(\\d+)', (req, res) => {
     const pk = req.params.id;
     categoryDao.getCategory(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.category);
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+
+    }).catch(err => onServerError(res, err));
+});
+
+router.get('/:id(\\d+)/data', (req, res)=>{
+
+    const pk = req.params.id;
+    categoryDao.collectCategoryData(pk).then(op=>{
+        if(op.success){
+            res.status(200).json(op.res);
         }
         else{
             onClientError(res, op.status_code, op.message);
@@ -56,7 +76,7 @@ router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
 });
 
 
-router.get("/:id(\\d+)/attributes", (req, res)=>{
+router.get("/:id(\\d+)/attributes",verifyAuthAdmin, (req, res)=>{
     const pk = req.params.id;
     categoryDao.collectAllCategoryAttributes(pk).then(op=>{
         if(op.success){
@@ -68,7 +88,6 @@ router.get("/:id(\\d+)/attributes", (req, res)=>{
 
     }).catch(err => onServerError(res, err));
 });
-
 
 router.post("/",verifyAuthAdmin, (req, res) => {
     categoryDao.postCategory(req.body).then(op=>{

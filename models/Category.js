@@ -19,6 +19,11 @@ Category.init({
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    on_main_page: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
     attributes: {
         type:DataTypes.JSON,
         allowNull: false
