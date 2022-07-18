@@ -5,6 +5,14 @@ const router = express.Router();
 const{onClientError, onServerError} = require("../handlers/errorHandler");
 const googleOauthService = require("../services/googleOauthService");
 
+router.get("/login", (req, res)=>{
+
+    let tmp = "/auth/google/login";
+    if(req.query.state_url!=null){
+        tmp+=`?state_url=${encodeURIComponent(req.query.state_url)}`;
+    }
+    res.redirect(tmp);
+});
 
 router.get("/google/login", (req, res)=>{
     const redirect_url = googleOauthService.getRedirectUrl(req.query.state_url);

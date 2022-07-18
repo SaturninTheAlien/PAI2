@@ -74,11 +74,13 @@ function mParseJson(json_in){
     }
 
     if(!Array.isArray(json_in.attributes)){
-        return {
+        /*return {
             "success":false,
             "status_code":400,
             "message": `Array field "attributes" required.`
-        }
+        }*/
+
+        json_in.attributes = [];
     }
 
     if(!json_in.hasOwnProperty("parent_id")){
@@ -272,7 +274,8 @@ async function collectCategoryData(pk){
     function f1(category){
         return {
             "id": category.id,
-            "name": category.name
+            "name": category.name,
+            "selected": false
         }
     }
 
@@ -296,7 +299,8 @@ async function collectCategoryData(pk){
                     }
                 });
                 x.children = children.map(f1);
-                
+
+                x.selected = true                
                 if(x.id==pk)break;
 
                 p = parents.find(a=>a.category.parent_id == x.id);
