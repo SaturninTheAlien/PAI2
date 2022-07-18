@@ -19,8 +19,8 @@ router.get('/', (req, res) => {
 })
 
 router.get('/:id(\\d+)', (req, res) => {
-    let user_id = req.params.id;
-    userDao.getUser(user_id).then(
+    const pk = Number.parseInt(req.params.id);
+    userDao.getUser(pk).then(
         user_o => {
             if(user_o.success){
                 res.status(200).json(user_o.user);
@@ -46,7 +46,8 @@ router.post('/', (req, res) => {
 })
 
 router.put('/:id(\\d+)', (req,res) => {
-    userDao.putUser(req.params.id, req.body, true).then(
+    const pk = Number.parseInt(req.params.id);
+    userDao.putUser(pk, req.body, true).then(
             user_o => {
             if(user_o.success){
                 res.status(200).json(user_o.user);
@@ -58,7 +59,8 @@ router.put('/:id(\\d+)', (req,res) => {
 })
 
 router.delete('/:id(\\d+)', (req, res) => {
-    userDao.deleteUser(req.params.id)
+    const pk = Number.parseInt(req.params.id);
+    userDao.deleteUser(pk)
         .then(user_o => {
             if(user_o.success){
                 res.sendStatus(204);

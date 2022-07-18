@@ -10,9 +10,11 @@ const{verifyAuthAdmin} = require("../services/authService");
 router.use(express.json());
 
 router.get("/", (req, res) => {
-    if(req.query.category_id!=null){      
+    if(Number.isInteger(req.query.category_id)){
+        const category_id = Number.parseInt(req.query.category_id);
+        
         const exlude_subcategories = req.query.exlude_subcategories=="true";
-        productDao.allProductsByCategory(req.query.category_id, exlude_subcategories, req.query).then(op=>{
+        productDao.allProductsByCategory(category_id, exlude_subcategories, req.query).then(op=>{
             if(op.success){
                 res.status(200).json(op.products);
             }
@@ -31,7 +33,7 @@ router.get("/", (req, res) => {
 });
 
 router.get('/:id(\\d+)', (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     productDao.getProduct(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.product);
@@ -55,7 +57,7 @@ router.post("/", verifyAuthAdmin, (req, res) => {
 });
 
 router.put('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     productDao.putProduct(pk, req.body).then(op=>{
         if(op.success){
             res.status(200).json(op.product);
@@ -67,7 +69,7 @@ router.put('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
 });
 
 router.delete('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     productDao.deleteProduct(pk).then(op=>{
         if(op.success){
             res.sendStatus(204);

@@ -22,7 +22,7 @@ router.get("/main_page", (req, res) => {
 });
 
 router.get('/:id(\\d+)', (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.getCategory(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.category);
@@ -36,7 +36,7 @@ router.get('/:id(\\d+)', (req, res) => {
 
 router.get('/:id(\\d+)/data', (req, res)=>{
 
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.collectCategoryData(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.res);
@@ -49,7 +49,7 @@ router.get('/:id(\\d+)/data', (req, res)=>{
 });
 
 router.get('/:id(\\d+)/collect_children', verifyAuthAdmin, (req, res)=>{
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.getCategoryWithAllChildren(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.categories);
@@ -63,7 +63,7 @@ router.get('/:id(\\d+)/collect_children', verifyAuthAdmin, (req, res)=>{
 
 router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
 
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.getCategoryWithAllParents(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.categories);
@@ -77,7 +77,7 @@ router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
 
 
 router.get("/:id(\\d+)/attributes",verifyAuthAdmin, (req, res)=>{
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.collectAllCategoryAttributes(pk).then(op=>{
         if(op.success){
             res.status(200).json(op.attributes);
@@ -102,7 +102,7 @@ router.post("/",verifyAuthAdmin, (req, res) => {
 
 
 router.put('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.putCategory(pk, req.body).then(op=>{
         if(op.success){
             res.status(200).json(op.category);
@@ -114,7 +114,7 @@ router.put('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
 });
 
 router.delete('/:id(\\d+)', verifyAuthAdmin, (req, res) => {
-    const pk = req.params.id;
+    const pk = Number.parseInt(req.params.id);
     categoryDao.deleteCategory(pk).then(op=>{
         if(op.success){
             res.sendStatus(204);
