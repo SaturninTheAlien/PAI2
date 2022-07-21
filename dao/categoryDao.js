@@ -279,18 +279,20 @@ async function collectCategoryData(pk){
         }
     }
 
-    let category_tree = await getCategoriesOnMainPage();
-    category_tree = category_tree.map(f1);
+    let categories_on_main_page = await getCategoriesOnMainPage();
+    categories_on_main_page = categories_on_main_page.map(f1);
+
     let parents_op = await getCategoryWithAllParents(pk);
     if(!parents_op.success)return parents_op;
 
-    
+    let category_tree = null;
 
     let parents = parents_op.categories;
     for(let p of parents){
 
-        let x = category_tree.find(a=>a.id==p.category.id);
+        let x = categories_on_main_page.find(a=>a.id==p.category.id);
         if(x!=null){
+            category_tree = x;
             
             while(true){
                 let children = await Category.findAll({
@@ -315,9 +317,12 @@ async function collectCategoryData(pk){
     return {
         "success": true,
         "res": {
-            "id": category.id,
-            "name": category.name,
-            "on_main_page": category.on_main_page,
+            "category":{
+                "id": category.id,
+                "name": category.name,
+                "on_main_page": category.on_main_page,
+            },
+            
             "tree": category_tree,
             "attributes": parents.map(a => {return a.category.attributes}).flat()
         }

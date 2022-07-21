@@ -10,10 +10,10 @@ const{verifyAuthAdmin} = require("../services/authService");
 router.use(express.json());
 
 router.get("/", (req, res) => {
-    if(Number.isInteger(req.query.category_id)){
-        const category_id = Number.parseInt(req.query.category_id);
+    const category_id = Number.parseInt(req.query.category_id);
+    if(Number.isInteger(category_id)){
         
-        const exlude_subcategories = req.query.exlude_subcategories=="true";
+        const exlude_subcategories = req.query.exclude_subcategories=="true";
         productDao.allProductsByCategory(category_id, exlude_subcategories, req.query).then(op=>{
             if(op.success){
                 res.status(200).json(op.products);
