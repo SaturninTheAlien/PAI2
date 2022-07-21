@@ -285,14 +285,14 @@ async function collectCategoryData(pk){
     let parents_op = await getCategoryWithAllParents(pk);
     if(!parents_op.success)return parents_op;
 
-    let category_tree = null;
+    //let category_tree = null;
 
     let parents = parents_op.categories;
     for(let p of parents){
 
         let x = categories_on_main_page.find(a=>a.id==p.category.id);
         if(x!=null){
-            category_tree = x;
+            //category_tree = x;
             
             while(true){
                 let children = await Category.findAll({
@@ -323,8 +323,8 @@ async function collectCategoryData(pk){
                 "on_main_page": category.on_main_page,
             },
             
-            "tree": category_tree,
-            "attributes": parents.map(a => {return a.category.attributes}).flat()
+            "tree": categories_on_main_page,
+            "all_attributes": parents.map(a => {return a.category.attributes}).flat()
         }
     }
 }
