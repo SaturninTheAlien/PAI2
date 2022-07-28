@@ -147,7 +147,8 @@ function mParseJson(json_in){
             "name": json_in.name,
             "parent_id": json_in.parent_id,
             "attributes": json_in.attributes,
-            "on_main_page": json_in.on_main_page || false
+            "on_main_page": json_in.on_main_page || false,
+            "abstract": json_in.abstract || false
         }
     }
 }
@@ -321,6 +322,7 @@ async function collectCategoryData(pk){
                 "id": category.id,
                 "name": category.name,
                 "on_main_page": category.on_main_page,
+                "abstract": category.abstract
             },
             
             "tree": categories_on_main_page,

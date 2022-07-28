@@ -159,10 +159,25 @@ async function mParseProductJson(json_in){
     }
     
     
-    const attributes_o = await categoryDao.collectAllCategoryAttributes(product.category_id);
+    /*const attributes_o = await categoryDao.collectAllCategoryAttributes(product.category_id);
     if(!attributes_o.success) return attributes_o;
+
+    const attributes = attributes_o.attributes;*/
+
+    const categoryData_o = await categoryDao.collectCategoryData(product.category_id);
+    if(!categoryData_o.success) return categoryData_o;
+
+    const categoryData = categoryData_o.res;
+    if(categoryData.category.abstract){
+        return {
+            "success": false,
+            "status_code": 409,
+            "message": `Cannot assign product to abstract category: ${categoryData.category.name}, use child category instead!`
+        }
+    }
+
+    const attributes = categoryData.all_attributes;
     
-    const attributes = attributes_o.attributes;
     for(let a of attributes){
         if(product.attributes[a.name]!=null){
             if(!categoryDao.validateProductAttribute(a, product.attributes[a.name])){

@@ -27,6 +27,11 @@ Category.init({
     attributes: {
         type:DataTypes.JSON,
         allowNull: false
+    },
+    abstract: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
     }
 }, {
     sequelize: db
