@@ -276,6 +276,7 @@ async function collectCategoryData(pk){
         return {
             "id": category.id,
             "name": category.name,
+            "abstract": category.abstract,
             "selected": false
         }
     }
@@ -322,7 +323,6 @@ async function collectCategoryData(pk){
                 "id": category.id,
                 "name": category.name,
                 "on_main_page": category.on_main_page,
-                "abstract": category.abstract
             },
             
             "tree": categories_on_main_page,
