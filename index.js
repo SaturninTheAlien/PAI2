@@ -1,5 +1,7 @@
 #!/usr/bin/node
 'use strict';
+require('dotenv').config()
+const {ALLOWED_CORS} = require("./config/env")
 
 console.log("Hello world");
 
@@ -14,7 +16,7 @@ app.get("/hello", (req, res)=>{
 
 const apiRouter = express.Router();
 const cors = require("cors");
-apiRouter.use(cors());
+apiRouter.use(cors({ origin: ALLOWED_CORS, credentials: true }));
 
 apiRouter.use("/auth", require("./routers/authRouter"));
 apiRouter.use("/categories", require("./routers/categoriesRouter"));
