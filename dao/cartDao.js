@@ -18,7 +18,7 @@ async function collectCartItemData(cart_item){
     return {
         "id": cart_item.id,
         "product_id": cart_item.product_id,
-        "product_name": cart_item.product_name,
+        "product_name": product.name,
         "quantity": cart_item.quantity,
         "total_price": cart_item.quantity * product.price,
         "picture_url": product.picture_url
