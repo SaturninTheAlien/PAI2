@@ -8,16 +8,15 @@ const jwt = require('jsonwebtoken')
 const userDao = require("../dao/userDao");
 
 async function verifyBasicAuth(req, b64auth){
-    //const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const strauth = Buffer.from(b64auth, 'base64').toString();
 
     if(strauth==null || strauth=="")return false;
     const splitIndex = strauth.indexOf(':');
 
-    const login = strauth.substring(0, splitIndex);
+    const username = strauth.substring(0, splitIndex);
     const password = strauth.substring(splitIndex + 1);
 
-    const user = await userDao.authenticateAndGetUser(login, password);
+    const user = await userDao.authenticateAndGetUser(username, password);
     if(user==null) return false;
 
     req.user_id = user.id;

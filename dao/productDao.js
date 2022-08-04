@@ -125,7 +125,7 @@ async function getProduct(pk){
     }
 }
 
-async function mParseProductJson(json_in){
+async function parseProductInput(json_in){
     if(typeof json_in.name != "string"){
         return {
             "success":false,
@@ -157,12 +157,6 @@ async function mParseProductJson(json_in){
         "description" : json_in.description || null,
         "picture_url": json_in.picture_url || null,
     }
-    
-    
-    /*const attributes_o = await categoryDao.collectAllCategoryAttributes(product.category_id);
-    if(!attributes_o.success) return attributes_o;
-
-    const attributes = attributes_o.attributes;*/
 
     const categoryData_o = await categoryDao.collectCategoryData(product.category_id);
     if(!categoryData_o.success) return categoryData_o;
@@ -204,7 +198,7 @@ async function mParseProductJson(json_in){
 }
 
 async function postProduct(json_in){
-    let op = await mParseProductJson(json_in);
+    let op = await parseProductInput(json_in);
     if(!op.success) return op;
 
     const product = await Product.build(op.product).save();
@@ -216,7 +210,7 @@ async function postProduct(json_in){
 }
 
 async function putProduct(pk, json_in){
-    let op = await mParseProductJson(json_in);
+    let op = await parseProductInput(json_in);
     if(!op.success) return op;
     op.product.id = pk
 

@@ -1,5 +1,25 @@
 'use strict';
+const productDao = require("./productDao");
 const CartItem = require("../models/CartItem");
+
+async function collectCartItemData(cart_item){
+    const product_op = await productDao.getProduct(cart_item.product_id);
+    if(!product_op.success)return product_op;
+    const product = product_op.product;
+
+    return {
+        "success": true,
+        "cart_item": {
+            "id": cart_item.id,
+            "product_id": cart_item.product_id,
+            "product_name": cart_item.product_name,
+            "quantity": cart_item.quantity,
+            "total_price": cart_item.quantity * product.price,
+            "picture_url": product.picture_url
+        }
+    }
+
+}
 
 async function allCartItemsByUserId(user_id){
     return await CartItem.findAll({where:{user_id}});

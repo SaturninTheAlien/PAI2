@@ -17,7 +17,7 @@ rl._writeToOutput = function _writeToOutput(stringToWrite) {
 function ask(query) {
     rl.stdoutMuted = false;
     rl.query = query;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         rl.question(query, (input) => resolve(input) );
     });
 }
@@ -25,7 +25,7 @@ function ask(query) {
 function askHidden(query){
     rl.stdoutMuted = true;
     rl.query = query;
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         rl.question(query, (input) =>{
             console.log("");
             resolve(input)

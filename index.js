@@ -10,7 +10,7 @@ const db = require('./config/database');
 
 const app = express();
 
-app.get("/hello", (req, res)=>{
+app.get("/hello", (_req, res)=>{
     res.status(200).send("Hello world");
 });
 

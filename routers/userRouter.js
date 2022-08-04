@@ -11,7 +11,7 @@ const{verifyAuthAdmin} = require("../services/authService");
 router.use(verifyAuthAdmin);
 router.use(express.json());
 
-router.get('/', (req, res) => {
+router.get('/', (_req, res) => {
     userDao.allUsers()
         .then(users =>{
             res.status(200).json(users)

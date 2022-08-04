@@ -63,7 +63,7 @@ function validateProductAttribute(a, v){
     return false;
 }
 
-function mParseJson(json_in){
+function parseCategoryInput(json_in){
 
     if(typeof json_in.name != "string"){
         return {
@@ -74,12 +74,6 @@ function mParseJson(json_in){
     }
 
     if(!Array.isArray(json_in.attributes)){
-        /*return {
-            "success":false,
-            "status_code":400,
-            "message": `Array field "attributes" required.`
-        }*/
-
         json_in.attributes = [];
     }
 
@@ -154,7 +148,7 @@ function mParseJson(json_in){
 }
 
 async function postCategory(json_in){
-    let category_o = mParseJson(json_in);
+    let category_o = parseCategoryInput(json_in);
     if(!category_o.success) return category_o;
 
     let category = await Category.build(category_o.category).save();
@@ -166,7 +160,7 @@ async function postCategory(json_in){
 }
 
 async function putCategory(pk, json_in){
-    let category_o = mParseJson(json_in);
+    let category_o = parseCategoryInput(json_in);
     if(!category_o.success) return category_o;
 
     category_o.category.id = pk;
@@ -286,16 +280,12 @@ async function collectCategoryData(pk){
 
     let parents_op = await getCategoryWithAllParents(pk);
     if(!parents_op.success)return parents_op;
-
-    //let category_tree = null;
-
     let parents = parents_op.categories;
-    for(let p of parents){
+    for(let parent of parents){
 
-        let x = categories_on_main_page.find(a=>a.id==p.category.id);
+        let x = categories_on_main_page.find(a=>a.id==parent.category.id);
         if(x!=null){
-            //category_tree = x;
-            
+            let p = parent;
             while(true){
                 let children = await Category.findAll({
                     where:{

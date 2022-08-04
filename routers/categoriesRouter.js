@@ -9,13 +9,13 @@ const{verifyAuthAdmin} = require("../services/authService");
 
 router.use(express.json());
 
-router.get("/", (req, res) => {
+router.get("/", (_req, res) => {
     categoryDao.allCategories().then(categories=>{
         res.status(200).json(categories);
     }).catch(err => onServerError(res, err));
 });
 
-router.get("/main_page", (req, res) => {
+router.get("/main_page", (_req, res) => {
     categoryDao.getCategoriesOnMainPage().then(categories=>{
         res.status(200).json(categories);
     }).catch(err => onServerError(res, err));

@@ -160,7 +160,7 @@ function isEmailValid(email) {
 }
 
 
-async function mParseJson(json_in, allow_admin=true){
+async function parseUserInput(json_in, allow_admin=true){
     
     if(!json_in.hasOwnProperty("admin")){
         json_in.admin = false;
@@ -233,7 +233,7 @@ async function mParseJson(json_in, allow_admin=true){
 }
 
 async function postUser(json_in, allow_admin=true){
-    let user_o = await mParseJson(json_in, allow_admin);
+    let user_o = await parseUserInput(json_in, allow_admin);
     if(!user_o.success) return user_o;
     
     let user = await User.build(user_o.user).save();
@@ -245,7 +245,7 @@ async function postUser(json_in, allow_admin=true){
 }
 
 async function putUser(pk, json_in, allow_admin=true){
-    let user_o = await mParseJson(json_in, allow_admin)
+    let user_o = await parseUserInput(json_in, allow_admin)
     if(!user_o.success) return user_o;
 
     user_o.user.id = pk
