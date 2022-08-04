@@ -3,30 +3,35 @@ const productDao = require("./productDao");
 const CartItem = require("../models/CartItem");
 
 async function collectCartItemData(cart_item){
+
     const product_op = await productDao.getProduct(cart_item.product_id);
-    if(!product_op.success)return product_op;
+    if(!product_op.success)return {
+        "id": cart_item.id,
+        "product_id": null,
+        "product_name": "Missing product",
+        "quantity": cart_item.quantity,
+        "total_price": null,
+        "picture_url": null
+    }
     const product = product_op.product;
 
     return {
-        "success": true,
-        "cart_item": {
-            "id": cart_item.id,
-            "product_id": cart_item.product_id,
-            "product_name": cart_item.product_name,
-            "quantity": cart_item.quantity,
-            "total_price": cart_item.quantity * product.price,
-            "picture_url": product.picture_url
-        }
+        "id": cart_item.id,
+        "product_id": cart_item.product_id,
+        "product_name": cart_item.product_name,
+        "quantity": cart_item.quantity,
+        "total_price": cart_item.quantity * product.price,
+        "picture_url": product.picture_url
     }
-
 }
+    
 
 async function allCartItemsByUserId(user_id){
-    return CartItem.findAll({where:{user_id}});
+    return Promise.all((await CartItem.findAll({where:{user_id}})).map(collectCartItemData));
 }
 
 async function clearCart(user_id){
-    return CartItem.destroy({where:{user_id}});
+    await CartItem.destroy({where:{user_id}});
 }
 
 async function addProductToCart(user_id, json_in){
@@ -41,7 +46,7 @@ async function addProductToCart(user_id, json_in){
     const product_id = json_in.product_id;
     let quantity = 1;
     if(json_in.hasOwnProperty("quantity")){
-        quantity = Number.parseInt(quantity);
+        quantity = Number.parseInt(json_in.quantity);
 
         if(Number.isNaN(quantity)){
             return {
@@ -71,11 +76,35 @@ async function addProductToCart(user_id, json_in){
 
     return {
         "success": true,
-        "cart_item": ci
+        "cart_item": await collectCartItemData(ci)
     }
 }
 
-async function setQuantity(pk, json_in){
+async function getCartItem(pk, user_id){
+    let ci = await CartItem.findByPk(pk);
+    if(ci==null){
+        return {
+            "success": false,
+            "status_code": 404,
+            "message": `CartItem with pk: ${pk} not found`
+        }
+    }
+    else if(ci.user_id!=user_id && user_id!=null ){
+        return {
+            "success": false,
+            "status_code": 403,
+            "message": `You cannot modify the content of another user's cart.`
+        }
+    }
+    else{
+        return {
+            "success": true,
+            "cart_item": ci
+        }
+    }
+}
+
+async function setQuantity(pk, json_in, user_id){
     if(!json_in.hasOwnProperty("quantity")){
         return {
             "success": false,
@@ -84,21 +113,17 @@ async function setQuantity(pk, json_in){
         }
     }
 
+    let ci_o = await getCartItem(pk, user_id);
+    if(!ci_o.success)return ci_o;
+
+    let ci = ci_o.cart_item;
+
     let quantity = Number.parseInt(json_in.quantity);
     if(Number.isNaN(quantity)){
         return {
             "success": false,
             "status_code": 400,
             "message": `Field "quantity" must be an integer.`
-        }
-    }
-
-    let ci = await CartItem.findByPk(pk);
-    if(ci!=null){
-        return {
-            "success": false,
-            "status_code": 404,
-            "message": `CartItem with pk: ${pk} not found`
         }
     }
 
@@ -124,8 +149,20 @@ async function setQuantity(pk, json_in){
         return {
             "success": true,
             "status_code": 200,
-            "cart_item": ci
+            "cart_item": await collectCartItemData(ci)
         }
+    }
+}
+
+async function deleteCartItem(pk, user_id){
+    let ci_o = await getCartItem(pk, user_id);
+    if(!ci_o.success)return ci_o;
+
+    await ci_o.cart_item.destroy();
+
+    return {
+        "success": true,
+        "status_code": 200
     }
 }
 
@@ -133,5 +170,6 @@ module.exports = {
     allCartItemsByUserId,
     clearCart,
     addProductToCart,
-    setQuantity
+    setQuantity,
+    deleteCartItem
 }

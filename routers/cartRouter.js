@@ -29,7 +29,7 @@ router.post("/", (req, res)=>{
 
 router.put("/:id(\\d+)/quantity", (req, res)=>{
     const pk = Number.parseInt(req.params.id);
-    cartDao.setQuantity(pk, req.body).then(op=>{
+    cartDao.setQuantity(pk, req.body, req.user_id).then(op=>{
         if(op.success){
             if(op.status_code===204){
                 res.sendStatus(204);
@@ -37,6 +37,18 @@ router.put("/:id(\\d+)/quantity", (req, res)=>{
             else{
                 res.status(op.status_code).json(op.cart_item);
             }
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+    }).catch(err => onServerError(res, err));
+});
+
+router.delete("/:id(\\d+)", (req, res)=>{
+    const pk = Number.parseInt(req.params.id);
+    cartDao.deleteCartItem(pk, req.user_id).then(op=>{
+        if(op.success){
+            res.sendStatus(204);
         }
         else{
             onClientError(res, op.status_code, op.message);
