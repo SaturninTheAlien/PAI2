@@ -4,7 +4,7 @@ const categoryDao = require("./categoryDao");
 const Product = require("../models/Product");
 
 async function allProducts(){
-    return await Product.findAll();
+    return Product.findAll();
 }
 
 

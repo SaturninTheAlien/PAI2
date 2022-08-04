@@ -22,11 +22,11 @@ async function collectCartItemData(cart_item){
 }
 
 async function allCartItemsByUserId(user_id){
-    return await CartItem.findAll({where:{user_id}});
+    return CartItem.findAll({where:{user_id}});
 }
 
 async function clearCart(user_id){
-    return await CartItem.destroy({where:{user_id}});
+    return CartItem.destroy({where:{user_id}});
 }
 
 async function addProductToCart(user_id, json_in){

@@ -52,13 +52,9 @@ async function readUsername(){
 async function readPassword(){
 
     while(true){
-        let pass1 = await askHidden("Password:",{
-            hideEchoBack:true
-        });
+        let pass1 = await askHidden("Password:");
     
-        let pass2 = await askHidden("Repeat password:",{
-            hideEchoBack:true
-        });
+        let pass2 = await askHidden("Repeat password:");
 
         if(pass1==pass2)return pass1;
 

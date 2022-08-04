@@ -4,8 +4,7 @@ const User = require("../models/User");
 const bcrypt = require('bcrypt');
 
 function mHidePassword(user_in){
-
-    let user = {
+    return {
         "id":  user_in.id,
         "username": user_in.username,
         "email": user_in.email,
@@ -16,8 +15,6 @@ function mHidePassword(user_in){
         "given_name": user_in.given_name,
         "family_name": user_in.family_name,
     }
-
-    return user;
 }
 
 async function allUsers(){
@@ -72,11 +69,7 @@ async function isUsernameTaken(username) {
             "username":username,
         }
     });
-
-    if (user != null) {
-        return true
-    }
-    return false
+    return user!=null;
 }
 
 async function authenticateAndGetUser(username, password){

@@ -3,11 +3,11 @@
 const Category = require("../models/Category");
 
 async function allCategories(){
-    return await Category.findAll();
+    return Category.findAll();
 }
 
 async function getCategoriesOnMainPage(){
-    return await Category.findAll({where:{
+    return Category.findAll({where:{
         "on_main_page":true
     }});
 }
@@ -266,11 +266,11 @@ async function collectAllCategoryAttributes(pk){
 }
 
 async function collectCategoryData(pk){
-    function f1(category){
+    function f1(category_in){
         return {
-            "id": category.id,
-            "name": category.name,
-            "abstract": category.abstract,
+            "id": category_in.id,
+            "name": category_in.name,
+            "abstract": category_in.abstract,
             "selected": false
         }
     }
