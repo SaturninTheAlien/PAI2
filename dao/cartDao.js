@@ -15,25 +15,25 @@ async function collectCartItemData(cart_item){
         "total_cost_pln": null,
     }
     const product = product_op.product;
-    let total_price = cart_item.quantity * product.price;
+    let total_cost = cart_item.quantity * product.price;
 
     return {
         "id": cart_item.id,
         "product": product,
         "quantity": cart_item.quantity,
-        "total_cost": total_price,
-        "total_cost_pln":  formatPLN(total_price),
+        "total_cost": total_cost,
+        "total_cost_pln":  formatPLN(total_cost),
     }
 }    
 
 async function getCart(user_id){
     const cart = await Promise.all((await CartItem.findAll({where:{user_id}})).map(collectCartItemData));
 
-    const total_price = cart.length==0 ? 0 : cart.map(ci=>ci.total_price).reduce((a,b)=>a+b);
+    const total_cost = cart.length==0 ? 0 : cart.map(ci=>ci.total_cost).reduce((a,b)=>a+b);
     return {
         "cart": cart,
-        "total_cost": total_price,
-        "total_cost_pln": formatPLN(total_price) 
+        "total_cost": total_cost,
+        "total_cost_pln": formatPLN(total_cost) 
     }
 }
 
@@ -41,8 +41,8 @@ async function clearCart(user_id){
     await CartItem.destroy({where:{user_id}});
     return {
         "cart": [],
-        "total_price": 0,
-        "total_price_pln": "0,00 zł"
+        "total_cost": 0,
+        "total_cost_pln": "0,00 zł"
     }
 }
 
