@@ -9,24 +9,20 @@ async function collectCartItemData(cart_item){
     const product_op = await productDao.getProduct(cart_item.product_id);
     if(!product_op.success)return {
         "id": cart_item.id,
-        "product_id": null,
-        "product_name": "Missing product",
+        "product": null,
         "quantity": cart_item.quantity,
         "total_price": null,
         "total_price_pln": null,
-        "picture_url": null
     }
     const product = product_op.product;
     let total_price = cart_item.quantity * product.price;
 
     return {
         "id": cart_item.id,
-        "product_id": cart_item.product_id,
-        "product_name": product.name,
+        "product": product,
         "quantity": cart_item.quantity,
         "total_price": total_price,
         "total_price_pln":  formatPLN(total_price),
-        "picture_url": product.picture_url
     }
 }    
 
@@ -91,7 +87,6 @@ async function addProductToCart(user_id, json_in){
     }
 
     let cart = await getCart(user_id);
-    cart.cart_item = await collectCartItemData(ci);
 
     return {
         "success": true,
@@ -162,7 +157,6 @@ async function setQuantity(pk, json_in, user_id){
     }
 
     let cart = await getCart(user_id);
-    cart.cart_item = await collectCartItemData(ci);
 
     return {
         "success": true,
