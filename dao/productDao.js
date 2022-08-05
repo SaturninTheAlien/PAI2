@@ -3,8 +3,24 @@
 const categoryDao = require("./categoryDao");
 const Product = require("../models/Product");
 
+const {formatPLN} = require("../utils/priceUtils");
+
+
+function collectProductData(product){
+    return {
+        "id": product.id,
+        "name": product.name,
+        "category_id": product.category_id,
+        "price": product.price,
+        "price_pln": formatPLN(product.price),
+        "description": product.description,
+        "picture_url": product.picture_url,
+        "attributes": product.attributes
+    }
+}
+
 async function allProducts(){
-    return Product.findAll();
+    return (await Product.findAll()).map(collectProductData);
 }
 
 
@@ -104,13 +120,13 @@ async function allProductsByCategory(category_id, exlude_children, query){
 
     return {
         "success": true,
-        "products": products
+        "products": products.map(collectProductData)
     }
 }
 
 async function getProduct(pk){
-    let op =  await Product.findByPk(pk);
-    if(op==null){
+    let product =  await Product.findByPk(pk);
+    if(product==null){
         return {
             "success": false,
             "status_code": 404,
@@ -120,7 +136,7 @@ async function getProduct(pk){
     else{
         return {
             "success": true,
-            "product": op
+            "product": collectProductData(product)
         }
     }
 }
@@ -205,7 +221,7 @@ async function postProduct(json_in){
     
     return {
         "success": true,
-        "product": product
+        "product": collectProductData(product)
     }
 }
 
@@ -218,7 +234,7 @@ async function putProduct(pk, json_in){
 
     return {
         "success": true,
-        "product": product,
+        "product": collectProductData(product),
         "created": created
     }
 
@@ -228,7 +244,7 @@ async function deleteProduct(pk){
     let op = await getProduct(pk);
     if(!op.success) return op;
 
-    await op.product.destroy();
+    await Product.destroy({where: {id: pk}});
 
     return {
         "success": true

@@ -2,6 +2,8 @@
 const productDao = require("./productDao");
 const CartItem = require("../models/CartItem");
 
+const {formatPLN} = require("../utils/priceUtils");
+
 async function collectCartItemData(cart_item){
 
     const product_op = await productDao.getProduct(cart_item.product_id);
@@ -11,27 +13,41 @@ async function collectCartItemData(cart_item){
         "product_name": "Missing product",
         "quantity": cart_item.quantity,
         "total_price": null,
+        "total_price_pln": null,
         "picture_url": null
     }
     const product = product_op.product;
+    let total_price = cart_item.quantity * product.price;
 
     return {
         "id": cart_item.id,
         "product_id": cart_item.product_id,
         "product_name": product.name,
         "quantity": cart_item.quantity,
-        "total_price": cart_item.quantity * product.price,
+        "total_price": total_price,
+        "total_price_pln":  formatPLN(total_price),
         "picture_url": product.picture_url
     }
-}
-    
+}    
 
-async function allCartItemsByUserId(user_id){
-    return Promise.all((await CartItem.findAll({where:{user_id}})).map(collectCartItemData));
+async function getCart(user_id){
+    const cart = await Promise.all((await CartItem.findAll({where:{user_id}})).map(collectCartItemData));
+
+    const total_price = cart.length==0 ? 0 : cart.map(ci=>ci.total_price).reduce((a,b)=>a+b);
+    return {
+        "cart": cart,
+        "total_price": total_price,
+        "total_price_pln": formatPLN(total_price) 
+    }
 }
 
 async function clearCart(user_id){
     await CartItem.destroy({where:{user_id}});
+    return {
+        "cart": [],
+        "total_price": 0,
+        "total_price_pln": "0,00 zł"
+    }
 }
 
 async function addProductToCart(user_id, json_in){
@@ -74,9 +90,12 @@ async function addProductToCart(user_id, json_in){
         ci = await CartItem.create({user_id, product_id, quantity});
     }
 
+    let cart = await getCart(user_id);
+    cart.cart_item = await collectCartItemData(ci);
+
     return {
         "success": true,
-        "cart_item": await collectCartItemData(ci)
+        "cart": cart
     }
 }
 
@@ -136,21 +155,18 @@ async function setQuantity(pk, json_in, user_id){
     }
     else if(quantity==0){
         await ci.destroy();
-        return {
-            "success": true,
-            "status_code": 204,
-            "cart_item": null
-        }
     }
     else{
         ci.quantity = quantity;
         ci = await ci.save();
+    }
 
-        return {
-            "success": true,
-            "status_code": 200,
-            "cart_item": await collectCartItemData(ci)
-        }
+    let cart = await getCart(user_id);
+    cart.cart_item = await collectCartItemData(ci);
+
+    return {
+        "success": true,
+        "cart": cart
     }
 }
 
@@ -162,12 +178,12 @@ async function deleteCartItem(pk, user_id){
 
     return {
         "success": true,
-        "status_code": 200
+        "cart": await getCart(user_id)
     }
 }
 
 module.exports = {
-    allCartItemsByUserId,
+    getCart,
     clearCart,
     addProductToCart,
     setQuantity,
