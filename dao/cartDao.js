@@ -31,7 +31,7 @@ async function getCart(user_id){
 
     const total_cost = cart.length==0 ? 0 : cart.map(ci=>ci.total_cost).reduce((a,b)=>a+b);
     return {
-        "cart": cart,
+        "contents": cart,
         "total_cost": total_cost,
         "total_cost_pln": formatPLN(total_cost) 
     }
@@ -40,7 +40,7 @@ async function getCart(user_id){
 async function clearCart(user_id){
     await CartItem.destroy({where:{user_id}});
     return {
-        "cart": [],
+        "contents": [],
         "total_cost": 0,
         "total_cost_pln": "0,00 zł"
     }
@@ -80,10 +80,10 @@ async function addProductToCart(user_id, json_in){
     let ci = await CartItem.findOne({where:{user_id, product_id}});
     if(ci!=null){
         ci.quantity += quantity;
-        ci = await ci.save();
+        await ci.save();
     }
     else{
-        ci = await CartItem.create({user_id, product_id, quantity});
+        await CartItem.create({user_id, product_id, quantity});
     }
 
     let cart = await getCart(user_id);
