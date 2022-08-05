@@ -11,8 +11,8 @@ async function collectCartItemData(cart_item){
         "id": cart_item.id,
         "product": null,
         "quantity": cart_item.quantity,
-        "total_price": null,
-        "total_price_pln": null,
+        "total_cost": null,
+        "total_cost_pln": null,
     }
     const product = product_op.product;
     let total_price = cart_item.quantity * product.price;
@@ -21,8 +21,8 @@ async function collectCartItemData(cart_item){
         "id": cart_item.id,
         "product": product,
         "quantity": cart_item.quantity,
-        "total_price": total_price,
-        "total_price_pln":  formatPLN(total_price),
+        "total_cost": total_price,
+        "total_cost_pln":  formatPLN(total_price),
     }
 }    
 
@@ -32,8 +32,8 @@ async function getCart(user_id){
     const total_price = cart.length==0 ? 0 : cart.map(ci=>ci.total_price).reduce((a,b)=>a+b);
     return {
         "cart": cart,
-        "total_price": total_price,
-        "total_price_pln": formatPLN(total_price) 
+        "total_cost": total_price,
+        "total_cost_pln": formatPLN(total_price) 
     }
 }
 
