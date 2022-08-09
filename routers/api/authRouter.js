@@ -2,12 +2,10 @@
 
 const express = require('express');
 const router = express.Router();
-const userDao = require("../dao/userDao");
-const{onClientError, onServerError} = require("../handlers/errorHandler");
+const userDao = require("../../dao/userDao");
+const{onClientError, onServerError} = require("../../handlers/errorHandler");
 
-const authService = require("../services/authService");
-
-router.use(express.json());
+const authService = require("../../services/authService");
 
 router.post("/login", (req, res)=>{
     authService.login(req.body).then(

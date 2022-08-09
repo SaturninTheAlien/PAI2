@@ -217,7 +217,7 @@ async function postProduct(json_in){
     let op = await parseProductInput(json_in);
     if(!op.success) return op;
 
-    const product = await Product.build(op.product).save();
+    const product = await Product.create(op.product);
     
     return {
         "success": true,

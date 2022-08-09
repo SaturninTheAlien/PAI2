@@ -229,7 +229,7 @@ async function postUser(json_in, allow_admin=true){
     let user_o = await parseUserInput(json_in, allow_admin);
     if(!user_o.success) return user_o;
     
-    let user = await User.build(user_o.user).save();
+    let user = await User.create(user_o.user);
 
     return {
         "success": true,

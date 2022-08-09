@@ -2,12 +2,10 @@
 
 const express = require('express');
 const router = express.Router();
-const productDao = require("../dao/productDao");
+const productDao = require("../../dao/productDao");
 
-const{onClientError, onServerError} = require("../handlers/errorHandler");
-const{verifyAuthAdmin} = require("../services/authService");
-
-router.use(express.json());
+const{onClientError, onServerError} = require("../../handlers/errorHandler");
+const{verifyAuthAdmin} = require("../../services/authService");
 
 router.get("/", (req, res) => {
     const category_id = Number.parseInt(req.query.category_id);

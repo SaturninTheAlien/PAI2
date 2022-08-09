@@ -2,12 +2,10 @@
 
 const express = require('express');
 const router = express.Router();
-const categoryDao = require("../dao/categoryDao")
+const categoryDao = require("../../dao/categoryDao")
 
-const{onClientError, onServerError} = require("../handlers/errorHandler");
-const{verifyAuthAdmin} = require("../services/authService");
-
-router.use(express.json());
+const{onClientError, onServerError} = require("../../handlers/errorHandler");
+const{verifyAuthAdmin} = require("../../services/authService");
 
 router.get("/", (_req, res) => {
     categoryDao.allCategories().then(categories=>{

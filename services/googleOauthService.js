@@ -5,12 +5,14 @@ const env = require("../config/env");
 const userDao = require("../dao/userDao");
 const {generateToken} = require("./authService");
 
+const GOOGLE_CLIENT_REDIRECT_URI = `${env.DOMAIN}/auth/google/callback`;
+
 function getRedirectUrl(state_url=null){
     if(env.GOOGLE_CLIENT_ID==null || env.GOOGLE_CLIENT_SECRET==null) return null;
     
     let params = new URLSearchParams({
         "client_id": env.GOOGLE_CLIENT_ID,
-        "redirect_uri": env.GOOGLE_CLIENT_REDIRECT_URI,
+        "redirect_uri": GOOGLE_CLIENT_REDIRECT_URI,
         "response_type": "code",
         "scope": [
             "https://www.googleapis.com/auth/userinfo.profile",
@@ -42,7 +44,7 @@ async function getAccessToken(code){
         "client_id": env.GOOGLE_CLIENT_ID,
         "client_secret": env.GOOGLE_CLIENT_SECRET,
         "code": code,
-        "redirect_uri": env.GOOGLE_CLIENT_REDIRECT_URI,
+        "redirect_uri": GOOGLE_CLIENT_REDIRECT_URI,
         "grant_type":"authorization_code"
     });   
 

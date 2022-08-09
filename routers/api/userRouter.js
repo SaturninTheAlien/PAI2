@@ -2,14 +2,13 @@
 
 const express = require('express');
 const router = express.Router();
-const userDao = require("../dao/userDao");
+const userDao = require("../../dao/userDao");
 
-const{onClientError, onServerError} = require("../handlers/errorHandler");
-const{verifyAuthAdmin} = require("../services/authService");
+const{onClientError, onServerError} = require("../../handlers/errorHandler");
+const{verifyAuthAdmin} = require("../../services/authService");
 
 
 router.use(verifyAuthAdmin);
-router.use(express.json());
 
 router.get('/', (_req, res) => {
     userDao.allUsers()

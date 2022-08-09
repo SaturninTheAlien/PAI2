@@ -151,7 +151,7 @@ async function postCategory(json_in){
     let category_o = parseCategoryInput(json_in);
     if(!category_o.success) return category_o;
 
-    let category = await Category.build(category_o.category).save();
+    let category = await Category.create(category_o.category);
 
     return {
         "success": true,

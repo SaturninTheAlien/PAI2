@@ -3,12 +3,11 @@
 const express = require('express');
 const router = express.Router();
 
-const{onClientError, onServerError} = require("../handlers/errorHandler");
-const{verifyAuth} = require("../services/authService");
+const{onClientError, onServerError} = require("../../handlers/errorHandler");
+const{verifyAuth} = require("../../services/authService");
 
-router.use(express.json());
 router.use(verifyAuth);
-const cartDao = require("../dao/cartDao");
+const cartDao = require("../../dao/cartDao");
 
 router.get("/", (req, res)=>{
     cartDao.getCart(req.user_id).then(cart=>{
