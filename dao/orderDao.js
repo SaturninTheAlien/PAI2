@@ -3,13 +3,26 @@
 const Order = require("../models/Order");
 const cartDao = require("./cartDao");
 
+const stripe = require("../config/stripe");
+
+async function updateOrderPaidStatus(order){
+    if(!order.paid && order.payment_intent_id!=null){
+        let payment_intent = await stripe.paymentIntents.retrieve(order.payment_intent_id);
+
+        if(payment_intent.status === "succeeded"){
+            order.paid = true;
+            order = await order.save();
+        }
+    }
+    return order;
+}
 
 async function allOrders(){
-    return Order.findAll();
+    return Promise.all((await Order.findAll()).map(updateOrderPaidStatus));
 }
 
 async function allOrdersByUser(user_id){
-    return Order.findAll({where: {user_id}});
+    return Promise.all((await Order.findAll({where: {user_id}})).map(updateOrderPaidStatus));
 }
 
 async function getOrder(pk){
@@ -24,30 +37,41 @@ async function getOrder(pk){
     else{
         return {
             "success": true,
-            "order": order
+            "order": await updateOrderPaidStatus(order)
         }
     }
 }
 
-async function completeOrder(pk){
-    let order_o = await getOrder(pk);
-    if(!order_o.success)return order_o;
-
-    let order = order_o.order;
-    order.completed = true;
-    await order.save();
-}
-
-async function buyCartItems(user_id, shipping_method){
+async function newOrderFromCart(user_id){
     let cart = await cartDao.getCart(user_id);
-    let order = {
+    
+    let payment_intent = await stripe.paymentIntents.create({
+        currency: "PLN",
+        amount: cart.total_cost,
+        automatic_payment_methods: { enabled: true }
+    });
+
+    if(payment_intent.amount!=cart.total_cost){
+        return {
+            "success": false,
+            "status_code": 500,
+            "message": `Incorrect price in payment intent`
+        }
+    }
+
+    let order = await Order.create({
         user_id,
         shipping_method,
         "contents": cart.contents,
-        "price_control_field": cart.total_cost
-    }
+        "total_cost": cart.total_cost,
+        "payment_intent_id": payment_intent.id,
+    });
 
-    return Order.create(order);
+
+    return {
+        "success": true,
+        "order": order
+    };
 }
 
 
@@ -55,6 +79,5 @@ module.exports = {
     allOrders,
     allOrdersByUser,
     getOrder,
-    completeOrder,
-    buyCartItems,
+    newOrderFromCart
 }

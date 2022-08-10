@@ -13,6 +13,7 @@ router.use("/cart", require("./api/cartRouter"));
 router.use("/categories", require("./api/categoriesRouter"));
 router.use("/orders", require("./api/ordersRouter"));
 router.use("/products", require("./api/productsRouter"));
+router.use("/stripe", require("./api/stripeRouter"));
 router.use("/users", require("./api/userRouter"));
 
 module.exports = router;

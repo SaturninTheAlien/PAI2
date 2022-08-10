@@ -16,22 +16,21 @@ Order.init({
     user_id: {
         type: DataTypes.INTEGER
     },
-    completed: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false
-    },
-    shipping_method:{
-        type: DataTypes.INTEGER,
-        allowNull: false
-    },
     contents:{
         type: DataTypes.JSON,
         allowNull: false
     },
-    price_control_field: {
+    total_cost: {
         type: DataTypes.INTEGER,
         allowNull: false
+    },
+    paid: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+    },
+    payment_intent_id:{
+        type: DataTypes.STRING
     }
 }, {
     sequelize: db
