@@ -5,6 +5,7 @@ const cartDao = require("./cartDao");
 
 const stripe = require("../config/stripe");
 
+
 async function updateOrderPaidStatus(order){
     if(!order.paid && order.payment_intent_id!=null){
         let payment_intent = await stripe.paymentIntents.retrieve(order.payment_intent_id);
@@ -77,16 +78,16 @@ async function newOrderFromCart(user_id){
 
     let order = await Order.create({
         user_id,
-        shipping_method,
         "contents": cart.contents,
         "total_cost": cart.total_cost,
         "payment_intent_id": payment_intent.id,
     });
-
-
     return {
         "success": true,
-        "order": order
+        "res": {
+            "order": order,
+            "client_secret": payment_intent.client_secret
+        }
     };
 }
 
