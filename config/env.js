@@ -27,11 +27,14 @@ const STRIPE_PUBLISHABLE_KEY = getEnvVariableOrDefault("STRIPE_PUBLISHABLE_KEY",
 const STRIPE_SECRET_KEY = getEnvVariableOrDefault("STRIPE_SECRET_KEY",
 "sk_test_7mJuPfZsBzc3JkrANrFrcDqC");
 
-const STRIPE_WEBHOOK_SECRET = getEnvVariableOrDefault("STRIPE_WEBHOOK_SECRET", "Debug secret", true);
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
+if(STRIPE_WEBHOOK_SECRET==null){
+    console.warn('\x1b[33m%s\x1b[0m', "STRIPE_WEBHOOK_SECRET env variable not set.");
+}
 
 
 if(GOOGLE_CLIENT_ID==null || GOOGLE_CLIENT_SECRET==null){

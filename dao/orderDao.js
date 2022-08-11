@@ -44,6 +44,22 @@ async function getOrder(pk){
 
 async function newOrderFromCart(user_id){
     let cart = await cartDao.getCart(user_id);
+
+    if(cart.contents.length==0){
+        return {
+            "success": false,
+            "status_code": 409,
+            "message": `Your cart is empty, cannot create an empty order.`
+        }
+    }
+    else if(cart.total_cost<=0){
+        return {
+            "success": false,
+            "status_code": 409,
+            "message": "You cannot create an order with a price 0 or negative."
+        }
+    }
+
     
     let payment_intent = await stripe.paymentIntents.create({
         currency: "PLN",
@@ -55,7 +71,7 @@ async function newOrderFromCart(user_id){
         return {
             "success": false,
             "status_code": 500,
-            "message": `Incorrect price in payment intent`
+            "message": `Incorrect price in payment intent.`
         }
     }
 

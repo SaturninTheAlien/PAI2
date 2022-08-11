@@ -1,7 +1,7 @@
 'use strict';
 const express = require("express");
 const router = express();
-//const env = require("../../config/env");
+const env = require("../../config/env");
 const{onClientError, onServerError} = require("../../handlers/errorHandler");
 
 const stripe = require("../../config/stripe");
