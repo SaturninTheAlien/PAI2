@@ -1,10 +1,34 @@
 'use strict';
 
 const Order = require("../models/Order");
-const cartDao = require("./cartDao");
 
+const productDao = require("./productDao");
+const cartDao = require("./cartDao");
 const stripe = require("../config/stripe");
 
+const {formatPLN} = require("../utils/priceUtils");
+
+async function collectOrderData(order){
+
+    async function f1(a){
+        let quantity = a.quantity;
+        let product = null;
+        if(a.product_id!=null){
+            let product_o = await productDao.getProduct(a.product_id);
+            if(product_o.success){
+                product = product_o.product;
+            }
+        }
+        return {quantity, product};
+    }
+
+    let {id, user_id, contents, total_cost, paid, ts, payment_client_secret} = order;
+    contents = await Promise.all(contents.map(f1));
+
+    let total_cost_pln = formatPLN(total_cost);
+    
+    return {id, user_id, contents, total_cost, total_cost_pln, paid, ts, payment_client_secret};    
+}
 
 async function updateOrderPaidStatus(order){
     if(!order.paid && order.payment_intent_id!=null){
@@ -15,7 +39,7 @@ async function updateOrderPaidStatus(order){
             order = await order.save();
         }
     }
-    return order;
+    return collectOrderData(order);
 }
 
 async function allOrders(){
@@ -68,7 +92,8 @@ async function cancelOrder(pk, user_id, user_admin=false){
             await stripe.paymentIntents.cancel(order.payment_intent_id);
         }
 
-        await order.destroy();
+        await Order.destroy({where:{id:pk}});
+
         return {
             "success": true
         }
@@ -108,18 +133,24 @@ async function newOrderFromCart(user_id){
         }
     }
 
+    let contents = cart.contents.map(a=>{
+        return {
+            "product_id": a.product_id,
+            "quantity": a.quantity
+        }
+    });
+
     let order = await Order.create({
         user_id,
-        "contents": cart.contents,
+        contents,
         "total_cost": cart.total_cost,
         "payment_intent_id": payment_intent.id,
+        "payment_client_secret": payment_intent.client_secret,
+        "ts": Date.now()
     });
     return {
         "success": true,
-        "res": {
-            "order": order,
-            "client_secret": payment_intent.client_secret
-        }
+        "order": await collectOrderData(order)
     };
 }
 

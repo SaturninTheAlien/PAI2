@@ -48,7 +48,7 @@ router.delete("/:id", verifyAuth, (req, res)=>{
 router.post("/cart", verifyAuth, (req, res)=>{
     orderDao.newOrderFromCart(req.user_id).then(order_o=>{
         if(order_o.success){
-            res.status(200).json(order_o.res);
+            res.status(200).json(order_o.order);
         }
         else{
             onClientError(res, order_o.status_code, order_o.message);

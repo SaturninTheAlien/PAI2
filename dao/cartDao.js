@@ -9,6 +9,7 @@ async function collectCartItemData(cart_item){
     const product_op = await productDao.getProduct(cart_item.product_id);
     if(!product_op.success)return {
         "id": cart_item.id,
+        "product_id": cart_item.product_id,
         "product": null,
         "quantity": cart_item.quantity,
         "total_cost": null,
@@ -19,6 +20,7 @@ async function collectCartItemData(cart_item){
 
     return {
         "id": cart_item.id,
+        "product_id": cart_item.product_id,
         "product": product,
         "quantity": cart_item.quantity,
         "total_cost": total_cost,

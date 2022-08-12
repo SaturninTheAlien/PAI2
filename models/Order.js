@@ -31,9 +31,17 @@ Order.init({
     },
     payment_intent_id:{
         type: DataTypes.STRING
+    },
+    payment_client_secret:{
+        type: DataTypes.STRING
+    },
+    ts: {
+        type: DataTypes.TIME,
+        allowNull: false,
     }
 }, {
-    sequelize: db
+    sequelize: db,
+    timestamps: false
 });
 
 Order.belongsTo(User, {
