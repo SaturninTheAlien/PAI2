@@ -14,18 +14,30 @@ router.get("/", verifyAuthAdmin, (req, res)=>{
     }).catch(err => onServerError(res, err));
 });
 
-router.get("/my_orders", verifyAuth, (req, res)=>{
+router.get("/my", verifyAuth, (req, res)=>{
     orderDao.allOrdersByUser(req.user_id).then(orders=>{
         res.status(200).json(orders);
 
     }).catch(err => onServerError(res, err));
 });
 
-router.get("/:id(\\d+)", verifyAuthAdmin, (req, res)=>{
+router.get("/:id(\\d+)", verifyAuth, (req, res)=>{
     const pk = Number.parseInt(req.params.id);
-    orderDao.getOrder(pk).then(order_o=>{
+    orderDao.getOrder(pk, req.user_id, req.user_admin).then(order_o=>{
         if(order_o.success){
             res.status(200).json(order_o.order);
+        }
+        else{
+            onClientError(res, order_o.status_code, order_o.message);
+        }
+    }).catch(err => onServerError(res, err));
+});
+
+router.delete("/:id", verifyAuth, (req, res)=>{
+    const pk = Number.parseInt(req.params.id);
+    orderDao.cancelOrder(pk, req.user_id, req.user_admin).then(order_o=>{
+        if(order_o.success){
+            res.sendStatus(204);
         }
         else{
             onClientError(res, order_o.status_code, order_o.message);

@@ -26,7 +26,7 @@ async function allOrdersByUser(user_id){
     return Promise.all((await Order.findAll({where: {user_id}})).map(updateOrderPaidStatus));
 }
 
-async function getOrder(pk){
+async function getOrder(pk, user_id, user_admin=false){
     let order = await Order.findByPk(pk);
     if(order==null){
         return {
@@ -35,10 +35,42 @@ async function getOrder(pk){
             "message": `Order with id ${pk} not found`
         }
     }
+    else if(!user_admin && order.user_id!=user_id){
+        return {
+            "success": false,
+            "status_code": 403,
+            "message": `You have no permission to access this order.`
+        }
+    }
     else{
         return {
             "success": true,
             "order": await updateOrderPaidStatus(order)
+        }
+    }
+}
+
+async function cancelOrder(pk, user_id, user_admin=false){
+    let order_o = await getOrder(pk, user_id, user_admin);
+    if(!order_o.success) return order_o;
+    let order = order_o.order;
+
+    if(order.paid){
+        return {
+            "success": false,
+            "status_code": 409,
+            "message": `Cannot cancel already paid order`
+        }
+    }
+    else{
+
+        if(order.payment_intent_id!=null){
+            await stripe.paymentIntents.cancel(order.payment_intent_id);
+        }
+
+        await order.destroy();
+        return {
+            "success": true
         }
     }
 }
@@ -96,5 +128,6 @@ module.exports = {
     allOrders,
     allOrdersByUser,
     getOrder,
-    newOrderFromCart
+    newOrderFromCart,
+    cancelOrder
 }

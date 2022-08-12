@@ -72,6 +72,15 @@ async function isUsernameTaken(username) {
     return user!=null;
 }
 
+async function isEmailTaken(email) {
+    let user = await User.findOne({
+        where:{
+            "email":email,
+        }
+    });
+    return user!=null;
+}
+
 async function authenticateAndGetUser(username, password){
     let user = await User.findOne({
         where:{
@@ -205,6 +214,14 @@ async function parseUserInput(json_in, allow_admin=true){
         }
     }
 
+    if(await isEmailTaken(json_in.email)){
+        return {
+            "success": false,
+            "status_code": 409,
+            "message": `This email is already taken.`
+        }
+    }
+
     let hashed_password = await bcrypt.hash(json_in.password, 10);
     let user = {
         "nickname": json_in.nickname,
@@ -277,5 +294,6 @@ module.exports = {
     authenticateAndGetUser,
     loginWithGoogleAndGetUser,
     isUsernameTaken,
-    isEmailValid
+    isEmailValid,
+    isEmailTaken
 }

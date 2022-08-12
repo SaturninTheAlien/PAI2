@@ -65,10 +65,15 @@ async function readPassword(){
 async function readEmail(){
     while(true){
         let email = await ask("Email:");
-        if(userDao.isEmailValid(email)){
+        if(!userDao.isEmailValid(email)){
+            console.log("This is not email, please re-enter.");    
+        }
+        else if(await userDao.isEmailTaken(email)){
+            console.log("This email is already taken.");
+        }
+        else{
             return email;
         }
-        console.log("This is not email, please re-enter.")
     }
 }
 
