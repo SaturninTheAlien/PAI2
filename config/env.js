@@ -17,7 +17,7 @@ function getEnvVariableOrDefault(variableName, fallbackValue, critical=false){
 }
 
 const DOMAIN = getEnvVariableOrDefault("DOMAIN", "http://localhost:8080");
-const ALLOWED_CORS = getEnvVariableOrDefault("ALLOWED_CORS", "http://localhost:3000");
+const ALLOWED_CORS = getEnvVariableOrDefault("ALLOWED_CORS", "*");
 const JWT_SECRET = getEnvVariableOrDefault("JWT_SECRET", "Debug_secret", true);
 
 
@@ -36,9 +36,28 @@ if(STRIPE_WEBHOOK_SECRET==null){
     console.warn('\x1b[33m%s\x1b[0m', "STRIPE_WEBHOOK_SECRET env variable not set.");
 }
 
+let oauth_providers = [];
 
 if(GOOGLE_CLIENT_ID==null || GOOGLE_CLIENT_SECRET==null){
     console.warn('\x1b[33m%s\x1b[0m', "GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET env variable not set, impossible to sign in with Google!");
+    oauth2_google_enabled = false;
+}
+else{
+    oauth_providers.push({
+        "name": "Google",
+        "url": "/auth/google/login",
+        "pictures": {
+            "hover": "/pictures/oauth/google/hover.png",
+            "normal": "/pictures/oauth/google/normal.png",
+            "pressed": "/pictures/oauth/google/pressed.png"
+        }
+    });
+}
+
+const CONFIG_JSON = {
+    "stripe_publishable_key": STRIPE_PUBLISHABLE_KEY,
+    "basic_login_enabled": true,
+    "oauth_providers": oauth_providers
 }
 
 module.exports = {
@@ -52,4 +71,6 @@ module.exports = {
 
     GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET,
+
+    CONFIG_JSON
 }
