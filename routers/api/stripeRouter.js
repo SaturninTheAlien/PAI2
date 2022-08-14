@@ -6,24 +6,6 @@ const{onClientError, onServerError} = require("../../handlers/errorHandler");
 
 const stripe = require("../../config/stripe");
 
-router.get("/config", (_req, res) => {
-    res.status(200).json({
-        publishable_key: env.STRIPE_PUBLISHABLE_KEY
-    });
-});
-
-router.get("/create-test-payment-intent", (_req, res)=>{
-    stripe.paymentIntents.create({
-        currency: "PLN",
-        amount: 1399,
-        automatic_payment_methods: { enabled: true }
-    }).then(payment_intent=>{
-        res.status(200).json({
-            client_secret: payment_intent.client_secret
-        });
-    }).catch(err => onServerError(res, err));
-});
-
 router.post("/webhook", (req, res)=>{
     async function f(req, res){
         let data, eventType;
