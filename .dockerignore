@@ -1,0 +1,11 @@
+node_modules/*
+package-lock.json
+
+bullshit
+start.sh
+
+config/.env
+
+__pycache__
+
+.DS_Store

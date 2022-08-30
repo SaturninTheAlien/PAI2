@@ -198,6 +198,10 @@ async function parseProductInput(json_in){
                 }
             }
         }
+        else if(!a.default_value!=null){
+            product.attributes[a.name] = a.default_value;
+        }
+
         else if(!a.allow_null){
             return {
                 "success":false,
