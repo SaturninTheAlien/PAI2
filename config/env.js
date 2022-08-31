@@ -40,7 +40,6 @@ let oauth_providers = [];
 
 if(GOOGLE_CLIENT_ID==null || GOOGLE_CLIENT_SECRET==null){
     console.warn('\x1b[33m%s\x1b[0m', "GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET env variable not set, impossible to sign in with Google!");
-    oauth2_google_enabled = false;
 }
 else{
     oauth_providers.push({
@@ -57,7 +56,9 @@ else{
 const CONFIG_JSON = {
     "stripe_publishable_key": STRIPE_PUBLISHABLE_KEY,
     "basic_login_enabled": true,
-    "oauth_providers": oauth_providers
+    "product_attributes_enabled":true,
+    "oauth_providers": oauth_providers,
+    "lang": "Node.js"
 }
 
 module.exports = {
