@@ -30,6 +30,18 @@ async function getCategory(pk){
     }
 }
 
+async function getCategoryFirstChildren(pk){
+    const op = await getCategory(pk);
+    if(!op.success) return op;
+
+    return {
+        "success": true,
+        "categories": await Category.findAll({where:{
+            "parent_id": pk
+        }})
+    };
+}
+
 function validateProductAttribute(a, v){
     
     if(v==null){
@@ -328,7 +340,7 @@ module.exports = {
     putCategory,
     deleteCategory,
 
-
+    getCategoryFirstChildren,
     getCategoriesOnMainPage,
     getCategoryWithAllChildren,
     getCategoryWithAllParents,

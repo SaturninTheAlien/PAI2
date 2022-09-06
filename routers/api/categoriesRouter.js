@@ -46,6 +46,21 @@ router.get('/:id(\\d+)/data', (req, res)=>{
     }).catch(err => onServerError(res, err));
 });
 
+router.get("/:id(\\d+)/children", (req, res)=>{
+    const pk = Number.parseInt(req.params.id);
+    categoryDao.getCategoryFirstChildren(pk).then(op=>{
+        if(op.success){
+            res.status(200).json(op.categories);
+        }
+        else{
+            onClientError(res, op.status_code, op.message);
+        }
+    }).catch(err => onServerError(res, err));
+});
+
+/**
+ * FOR DEBUG ONLY, DO NOT USE IN PRODUCTION CLIENT
+ */
 router.get('/:id(\\d+)/collect_children', verifyAuthAdmin, (req, res)=>{
     const pk = Number.parseInt(req.params.id);
     categoryDao.getCategoryWithAllChildren(pk).then(op=>{
@@ -59,6 +74,9 @@ router.get('/:id(\\d+)/collect_children', verifyAuthAdmin, (req, res)=>{
     }).catch(err => onServerError(res, err));
 });
 
+/**
+ * FOR DEBUG ONLY, DO NOT USE IN PRODUCTION CLIENT
+ */
 router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
 
     const pk = Number.parseInt(req.params.id);
@@ -74,6 +92,9 @@ router.get("/:id(\\d+)/collect_parents", verifyAuthAdmin, (req, res)=>{
 });
 
 
+/**
+ * FOR DEBUG ONLY, DO NOT USE IN PRODUCTION CLIENT
+ */
 router.get("/:id(\\d+)/attributes",verifyAuthAdmin, (req, res)=>{
     const pk = Number.parseInt(req.params.id);
     categoryDao.collectAllCategoryAttributes(pk).then(op=>{
